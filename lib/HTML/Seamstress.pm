@@ -1,6 +1,6 @@
 package HTML::Seamstress;
 
-use 5.008;
+#use 5.008;
 use strict;
 use warnings;
 
@@ -33,7 +33,7 @@ our @EXPORT = qw(
 		 htmls_compile
 );
 
-our $VERSION = '2.1';
+our $VERSION = '2.2';
 
 our $ID = 'id';
 
