@@ -4,7 +4,7 @@ HTML::Seamstress - HTML::Tree subclass for HTML templating via tree rewriting
 
 =head1 SYNOPSIS
 
-=head2 Text substitution
+=head2 Text substitution via replace_content() API call.
 
 In our first example, we want to perform simple text substitution on
 the HTML template document. The HTML file html/hello_world.htm has
@@ -16,8 +16,8 @@ klass attributes which serve as compiler (kompiler?) hints to Seamstress:
  </head>
  <body>
  <h1>Hello World</h1>
-   <p>Hello, my name is <klass=content span id="name">dummy_name</span>.
-   <p>Today's date is <klass=content span id="date">dummy_date</span>.
+   <p>Hello, my name is <span id="name">dummy_name</span>.
+   <p>Today's date is <span id="date">dummy_date</span>.
  </body>
  </html>
 
@@ -26,20 +26,20 @@ klass attributes which serve as compiler (kompiler?) hints to Seamstress:
  shell> seamc html/hello_world.htm
  Seamstress v2.91 generating html::hello_world from html/hello_world.htm
 
-Now you simply use the compiled version of HTML with object-oriented
-accessors.  
+Now you simply use the "compiled" version of HTML with API calls to
+HTML::TreeBuilder, HTML::Element, and HTML::Element::LIbrary
 
  use html::hello_world; 
  
  my $tree = html::hello_world->new; 
- $tree->name('terrence brannon')->date('5/11/1969')->as_HTML;
+ $tree->look_down(id => name)->replace_content('terrence brannon');
+ $tree->look_down(id => date)->replace_content('5/11/1969');
+ print $tree->as_HTML;
 
-=head2 If-then-else with the highlander kompiler hint
+=head2 If-then-else with the highlander API call
 
-The C<highlander> kompiler hint is used to mark a subtree of HTML in
-which only one child should survive:
 
- <span klass="highlander" id="age_dialog">
+ <span id="age_dialog">
     <span id="under10">
        Hello, does your mother know you're 
        using her AOL account?
@@ -56,19 +56,21 @@ which only one child should survive:
 
 =head3 Compile and use the module:
 
- use html::highlander;
+ use html::age_dialog;
 
- my $tree = html::highlander->new;
+ my $tree = html::dialog->new;
 
- $tree->age_dialog
-    (
+ $tree->highlander
+    (age_dialog =>
      [
       under10 => sub { $_[0] < 10} , 
       under18 => sub { $_[0] < 18} ,
       welcome => sub { 1 }
      ],
      $age
-    )->as_HTML;
+    );
+
+  print $tree->as_HTML;
 
   # will only output one of the 3 dialogues based on which closure 
   # fires first	
@@ -83,126 +85,159 @@ manipulations:
 
 =item * L<HTML::Element::Library>
 
-=item * L<HTML::Seamstress>
-
 =item * L<HTML::Element>
+
+=item * L<HTML::Tree>
 
 =back
 
-More functionality of 
+
+
+=head1 PHILOSOPHY / MOTIVATION for HTML::Seamstress
+
+The motivation for HTML::Seamstress was to provide a module which
+would allow for pure HTML to be dynamically "unrolled" without any
+foreign elements in the HTML itself. 
+
+This design goal can be met by the 3 most popular templating
+systems for Perl - L<HTML::Mason>, L<HTML::Template> and L<Template>. 
+
+A second design goal for Seamstress was to have only two technologies,
+object-oriented Perl and HTML. Neither HTML::Template or Template meet
+this design goal. HTML::Mason has components defined as a *mix* of
+Perl and HTML as it's fundamental item of reuse. Seamstress keeps the
+two technologies pure and separate. 
+
+Mixing Perl and HTML means that validation tools for both technologies
+is unavailable. Mixing mini-languages and HTML means that you are stuck
+with the disadvantages of mini-languages. The disadvantages of
+mini-languages are discussed here:
+
+L<http://perlmonks.org/?node_id=428053>
+
+
 
 
 =head1 DESCRIPTION
 
+This section will cover two things. What Seamstress offers and the
+theory of HTML as trees.
+
+
+
+=head2 HTML as Trees
+
 From reading L<HTML::Tree::Scanning>, we know that HTML has a tree
 structure. HTML::Seamstress is a subclass of L<HTML::TreeBuilder>
-which makes it a little easier to perform common HTML templating
+and L<HTML::Element::Library>
+which makes it easier to perform common HTML templating
 operations as tree rewriting.
 
-=head2 Text Substitution == Node rewriting
+
+=head3 Text Substitution == Node rewriting
 
 The L</SYNOPSIS> gave an example of text substitution. From a
 tree-writing perspective, text substitution involves an in-place
 change to the content of a node of an HTML tree.
 
-There are two methods for rewriting the content of a node. The more powerful
-method is C<set_child_content>. The more convenient is C<content_handler>.
-Both are desc
+You will find the L<HTML::Element::Library/"Tree Rewriting Methods"> of 
+great use when doing this sort of templating.
 
-=head3 $tree->set_child_content(@look_down, $content)
-
-This method looks down $tree using the criteria specified in 
-C<@look_down>
-using the the HTML::Element C<look_down()> method. 
-
-After finding the node, it detaches the node's content
-and pushes $content as the node's content.
-
-=head3 $tree->content_handler($sid_value , $content)
-
-This is a convenience method. Because the look_down criteria will often
-simply be:
-
-   sid => 'fixup'
-
-to find things like:
-
-   <a sid=fixup href=http://www.somesite.org>replace_content</a>
-
-You can call this method to shorten your typing a bit:
-
-   $tree->content_handler( fixup => 'new text' )
-
-Instead of typing:
-
-  $tree->set_child_content(sid => 'fixup', 'new text') 
-
-
-=head3 set_content()
-
-=head2 Conditional Processing (aka if/unless) == Node Deletion 
+=head3 Conditional Processing (aka if/unless) == Node Deletion 
 
 In tree rewriting terms, an C<if> directive is used to decide whether a 
 particular node of the HTML tree is preserved or deleted.
 
-For example, given this Template-style HTML:
+The most useful function for this is the highlander method, also a part
+of L<HTML::Element::Library>.
 
- [% IF age < 10 %]
-       Hello, does your mother know you're 
-       using her AOL account?
- [% ELSIF age < 18 %]
-       Sorry, you're not old enough to enter 
-       (and too dumb to lie about your age)
- [% ELSE %]
-       Welcome
- [% END %]
+=head3 Looping (e.g. Table Unrolling) == Child Replication
 
-Here is the HTML and Perl for Seamstress:
+Table unrolling, pulldown creation, li unrolling, and dl unrolling are
+all examples of a tree operation in which you take a child of a node
+and clone it and then alter it in some way (replace the content, alter
+some of its attributes), and then stick it under its parent.
 
-  <span id=age_handler>
-    <span id="under10">
-       Hello, does your mother know you're 
-       using her AOL account?
-    </span>
-    <span id="under18">
-       Sorry, you're not old enough to enter 
-       (and too dumb to lie about your age)
-    </span>
-    <span id="welcome">
-       Welcome
-    </span>
-  </span>
-
- package HTML::Seamstress
- use HTML::Seamstress;
- my $tree = HTML::Seamstress->new();
- $tree->parse_file($filename);
- $tree->age_handler($age);
- print $tree->as_HTML;
-
- sub age_handler {
-   my ($tree, $age) = @_;
-   my $SPAN = $tree->look_down('id', 'age_handler');
-   if ($age < 10) {
-    $SPAN->look_down('id', $_)->detach for qw(under18 welcome);
-   } elsif ($age < 18) {
-    $SPAN->look_down('id', $_)->detach for qw(under10 welcome);
-  } else {
-        $SPAN->look_down('id', $_)->detach for qw(under10 under18);
-  }
-
- }
+Functions for use with the common HTML elements --- <table>, <ol>,
+<ul>, <dl>, <select> are documented in L<HTML::Element::Lbrary> and are
+prefaced with the words "Tree Building Methods".
 
 
-=head2 Looping (e.g. Table Unrolling) == Child Replication
+=head2 What Seamstress offers
 
+All of the tree-rewriting functionality discussed above exists outside
+of this distribution in libraries
 
+=over 
 
+=item * L<HTML::ElementTable>
 
-=head2 EXPORT
+=item * L<HTML::Element::Library>
 
-None by default.
+=item * L<HTML::Element>
 
+=item * L<HTML::Tree>
+
+=back
+
+The module HTML::Seamstress is  a base class of HTML::Element and
+HTML::Element::Library which makes it easy to access the API calls of
+those modules in a convenient fashion. 
+
+The HTML::Seamstress
+distribution also comes with a small script, C<seamc>, which 
+creates .pm files for .htm(l)? files, which can then be used by your
+Perl code. The .pm files have only a constructor, C<new>, which
+returns a tree of the HTML file blessed into the HTML::Seamstress
+class, which due to its subclassing, can be operated on by most of the
+modules listed above. Matthew Sisk's modules have not been subclassed
+or required by Seamstress because I have not had the personal need to
+use them, but doing so should be straightforward. Tests and patches
+welcome. 
+
+seamc requires a file called seamc.cfg to exist in the directory above
+the root for your HTML. Thus if your HTML is in a directory called
+html, the file seamc.cfg would be a sibling of the directory
+html. Here's an exmaple from a website I am doing now:
+
+  /var/www/terry/gimblerus.com:
+  total 56
+  drwxr-xr-x  11 terry terry 4096 Feb  3 02:19 .
+  drwxr-xr-x   5 terry terry 4096 Feb  4 00:46 ..
+  -rw-r--r--   1 terry terry  318 Jan 30 02:59 favicon.ico
+  drwxr-xr-x   2 terry terry 4096 Feb  3 23:57 html
+  drwxr-xr-x   2 terry terry 4096 Jan 29 23:12 img
+  -rw-r--r--   1 terry terry  544 Feb  2 16:35 index.html
+  -rw-r--r--   1 terry terry    1 Jan 29 16:41 seamc.cfg
+  drwxr-xr-x   3 terry terry 4096 Jan 29 23:13 sql
+
+  /var/www/terry/gimblerus.com/html:
+  total 148
+  drwxr-xr-x   2 terry terry 4096 Feb  3 23:57 .
+  drwxr-xr-x  11 terry terry 4096 Feb  3 02:19 ..
+  -rw-r--r--   1 terry terry 1188 Feb  3 23:57 addclan.html
+  -rw-r--r--   1 terry terry  396 Feb  2 01:06 addclan.pm  # <- Seamstress!
+  -rw-r--r--   1 terry terry  323 Feb  3 17:44 footer.html
+  -rw-r--r--   1 terry terry  394 Feb  1 23:50 footer.pm   # <- Seamstress!
+
+To use seamc, you simply type 
+
+  seamc -verbose $html_file 
+
+from any directory. seamc will ascend the directory tree until it
+finds the seamc.cfg file and then create a Perl module whose name will
+allow it to be used as long as the C<html/> directory is in your Perl
+include path, C<@INC>.
+
+For the example above, footer.pm will have package name html::footer
+and would be used like so:
+
+ use lib '/var/www/terry/gimblerus.com';
+ use html::footer;
+
+ my $tree = html::footer->new;
+ 
+ # ... etc
 
 
 =head1 SEE ALSO
@@ -238,12 +273,26 @@ reach for Petal. It is quite sweet.
 =item * L<Petal>
 
 Based on Zope's TAL, this is a very nice and complete framework that is
-the basis of MkDoc, a XML application server.
+the basis of MkDoc, a XML application server. It offers a
+mini-language for XML rewriting, Seamstress does not. The philosophy
+of the Seamstress is the orthogonal integration of Perl and HTML not a
+mini-language and HTML.
 
 =item * L<XML::LibXML>
 
 By the XML guru Matt Sergeant, who is also the author of AxKit, another XML 
-application server.
+application server. This offers XPath for finding nodes
+
+=item * L<XML::DOM>
+
+If I wanted to ape XMLC entirely, I would have used TJ Mather's
+L<XML::DOM>. Because XMLC is based around DOM API calls. However,
+TreeBuilder is very handy and has a lot of nice libraries around it
+such L<HTML::PrettyPrinter>. The biggest win of XML::DOM is it's easy
+integration with L<XML::Generator>
+
+From the docs, it looks like L<XML::GDOME> is the successor to this
+module.
 
 =back
 
@@ -253,7 +302,7 @@ Terrence Brannon, E<lt>tbone@cpan.org<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2002-2004 by Terrence Brannon.
+Copyright 2002-2005 by Terrence Brannon.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
