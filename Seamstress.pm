@@ -21,7 +21,7 @@ use warnings;
 
 # version
 
-our $VERSION = sprintf '%s', q$Revision: 1.15 $ =~ /\S+\s+(\S+)\s+/;
+our $VERSION = sprintf '%s', q$Revision: 1.16 $ =~ /\S+\s+(\S+)\s+/;
 
 
 # code
@@ -454,9 +454,9 @@ HTML::Seamstress - dynamic HTML generation via pure HTML and pure Perl.
 
 =head1 DESCRIPTION
 
-HTML::Seamstress supports dynamic HTML. The amount of instrumention of 
-HTML is 100% view non-invasive and completely embedded within the 
-HTML tags of interest. Leading to maximum readability for the HTML
+HTML::Seamstress supports dynamic HTML geneation. The HTML instrumention 
+is 100% view non-invasive and completely embedded within the 
+HTML tags of interest. This leads to maximum readability for the HTML
 designer and maximum cleanliness for the person instrumenting the HTML
 for dynamic HTML generation.
 
@@ -469,11 +469,51 @@ HTML templating. Note well that nothing in these paragraphs is anything other
 than a discussion of object-oriented Perl execution. Which means, with 
 Seamstress, you don't spend time learning the limitations someone put on
 Perl and you don't spend time learning things which are not Perl. You simply
-learn how 3 HTML class tags result in interpration of the result of evaluating
-the Perl code in the id tag and how this results in skipping or traversal of
-parts of the HTML
+learn how 3 HTML C<CLASS> tags result in interpretation of the result of 
+evaluating
+the Perl code in the id tag and how this results in processing
+parts of the HTML.
 
 =over 4
+
+=item * dynamic HTML can be seen as a collection of tree-rewrites
+
+That an HTML file is a tree is discussed at length in Sean M. Burke's
+HTML::Tree::AboutTrees - an article available from CPAN originally
+published in the Perl Journal.
+
+The tree re-writes that are needed are 
+
+=over 4 
+
+=item * point mutation 
+
+Changing something
+about the particular elements that you are on (e.g. changing a span tag
+to a bold tag. Editing the content of the current tag, setting the value
+of a current tag. This is done by the HTML::Seamstress C<worker> CLASS tag.
+
+=item * delete or traverse
+
+Most HTML templating systems including an if-then-else contruct. The
+purpose of this construct is to take a portion of the HTML tree and either
+delete it from the document to be output or allow it to remain.
+This is done by the HTML::Seamstress C<supply> CLASS tag.
+
+=item * node insertion
+
+Most HTML templating systems include a for-loop of some kind. The purpose
+of such a loop is to take a particular HTML element, usually a <tr> tag and
+repeat it until some condition is met. Speaking tree-wise, this is nothing
+but a repeated insert of the <tr> tag. Such an operation is often coupled by 
+workers within <td> tags making point mutations for each instance of node 
+insertion. It comes as no surprise that the name of the HTML::Seamstress
+node insertion C<CLASS> tag is C<iterator>. Because multiple iterators
+can be necessary, any CLASS tag which matches the regexp C</iterator/> 
+is interpreted as an iterator, e.g. iterator_i, iterator_j, iterator.
+
+=back
+
 
 =item * the supply CLASS
 

@@ -16,7 +16,10 @@ require Data::FormValidator;
 my $i = {
     required => [qw(first_name email)],
     optional => [qw(last_name phone_number comments)],
-    constraints => { email => 'email' }
+    constraints => { 
+	email => 'email',
+	phone_number => american_phone
+	}
     };
 my $v = Data::FormValidator->new($i);
 my $vars = $q->Vars;
