@@ -1,10 +1,12 @@
 Changes
 Makefile.PL
 MANIFEST
-README
 Seamstress.pm
-test.pl
-t/pp.pl
 t/simple.html
 t/simple.pm
 t/simple.pl
+t/simple-compile/pipeline
+t/simple-compile/simple.html
+t/simple-compile/simple.pl
+t/simple-compile/simple.pm
+
