@@ -5,11 +5,15 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'		=> 'HTML::Seamstress',
     'VERSION_FROM'	=> 'lib/HTML/Seamstress.pm', # finds $VERSION
-    'PREREQ_PM'		=> {
-			    Scalar::Listify => 0.02,
-			    Tie::Cycle => 1.06,
-			    HTML::Tree => 3.18,
-			    Pod::Usage => 1.16,
-			    AppConfig::Std => 1.07
-			   }, # e.g., Module::Name => 1.1
+    'PREREQ_PM'		=> 
+	      {
+	       AppConfig::Std => 1.07,
+	       Array::Dissect => 1.03,
+	       File::Slurp => 9999.06,
+	       HTML::Element::Library => 0.01,
+	       HTML::PrettyPrinter => 0.03,
+	       HTML::Tree => 3.18,
+	       Pod::Usage => 1.16,
+	      
+	      }, 
 );

@@ -62,3 +62,15 @@ $a->age_dialog(
 	       ],
 	       $age
 	      );
+
+---
+
+my @data =
+  ('the pros' => 'never have to worry about service again',
+   'the cons' => 'upfront extra charge on purchase',
+   'our choice' => 'go with the extended service plan');
+
+my $dl = HTML::dl->new;
+$dl->service_plan(@data);
+
+     

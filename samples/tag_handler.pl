@@ -13,7 +13,7 @@ $tree->look_down(src => 'fixed_img')->set_sibling_content('NEW CONTENT');
 
 $tree->objectify_text;
 
-$tree->dump;
+warn $tree->as_HTML;
 
 
 1;

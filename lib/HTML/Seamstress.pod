@@ -1,10 +1,14 @@
 =head1 NAME
 
-HTML::Seamstress - Perl extension for HTML generation via tree rewriting
+HTML::Seamstress - HTML::Tree subclass for HTML templating via tree rewriting
 
 =head1 SYNOPSIS
 
-=head2 HTML "adulterated" with id attributes
+=head2 Text substitution
+
+In our first example, we want to perform simple text substitution on
+the HTML template document. The HTML file html/hello_world.htm has
+klass attributes which serve as compiler (kompiler?) hints to Seamstress:
 
  <html>
  <head>
@@ -12,40 +16,80 @@ HTML::Seamstress - Perl extension for HTML generation via tree rewriting
  </head>
  <body>
  <h1>Hello World</h1>
-   <p>Hello, my name is <span id="name">ah, Clem</span>.
-   <p>Today's date is <span id="date">Oct 6, 2001</span>.
+   <p>Hello, my name is <klass=content span id="name">dummy_name</span>.
+   <p>Today's date is <klass=content span id="date">dummy_date</span>.
  </body>
  </html>
 
-=head2 Perl finds nodes in the tree and rewrites them:
+=head3 Seamstress compiles HTML to C<html::hello_world>
 
-  use HTML::Seamstress; # HTML::Seamstress HTML::TreeBuilder :)
-  my $tree = HTML::Seamstress->new_from_file($html_file);
-  $tree->name_handler('bob');
-  $tree->date_handler(`date`);
-  
-  sub name_handler {
-    my ($tree, $name) = @_;
+ shell> seamc html/hello_world.htm
+ Seamstress v2.91 generating html::hello_world from html/hello_world.htm
 
-    my $name_tag = $tree->look_down('id', 'name');
-    $name_tag->detach_content; # delete dummy content ("ah, Clem")
-    $name_tag->push_content($name);
-  }
+Now you simply use the compiled version of HTML with object-oriented
+accessors.  
 
-  sub date_handler {
-    my ($tree, $date) = @_;
+ use html::hello_world; 
+ 
+ my $tree = html::hello_world->new; 
+ $tree->name('terrence brannon')->date('5/11/1969')->as_HTML;
 
-    my $name_tag = $tree->look_down('id', 'date');
-    $name_tag->detach_content; # delete dummy content ("Oct 6, 2001")
-    $name_tag->push_content($date);
-  }
+=head2 If-then-else with the highlander kompiler hint
 
-=head3 Or with convenience methods:
+The C<highlander> kompiler hint is used to mark a subtree of HTML in
+which only one child should survive:
 
-  use HTML::Seamstress; 
-  my $tree = HTML::Seamstress->new_from_file($html_file);
-  $tree->content_handler(name => 'bob');
-  $tree->content_handler(date => `date`);
+ <span klass="highlander" id="age_dialog">
+    <span id="under10">
+       Hello, does your mother know you're 
+       using her AOL account?
+    </span>
+    <span id="under18">
+       Sorry, you're not old enough to enter 
+       (and too dumb to lie about your age)
+    </span>
+    <span id="welcome">
+       Welcome
+    </span>
+ </span>
+
+
+=head3 Compile and use the module:
+
+ use html::highlander;
+
+ my $tree = html::highlander->new;
+
+ $tree->age_dialog
+    (
+     [
+      under10 => sub { $_[0] < 10} , 
+      under18 => sub { $_[0] < 18} ,
+      welcome => sub { 1 }
+     ],
+     $age
+    )->as_HTML;
+
+  # will only output one of the 3 dialogues based on which closure 
+  # fires first	
+
+
+The following libraries are always available for more complicated
+manipulations:
+
+=over 
+
+=item * L<HTML::ElementTable>
+
+=item * L<HTML::Element::Library>
+
+=item * L<HTML::Seamstress>
+
+=item * L<HTML::Element>
+
+=back
+
+More functionality of 
 
 
 =head1 DESCRIPTION
@@ -63,6 +107,7 @@ change to the content of a node of an HTML tree.
 
 There are two methods for rewriting the content of a node. The more powerful
 method is C<set_child_content>. The more convenient is C<content_handler>.
+Both are desc
 
 =head3 $tree->set_child_content(@look_down, $content)
 
@@ -151,236 +196,6 @@ Here is the HTML and Perl for Seamstress:
 
 =head2 Looping (e.g. Table Unrolling) == Child Replication
 
-=head3 Sample Model
-
- package Simple::Class;
- 
- use Set::Array;
- 
- my @name   = qw(bob bill brian babette bobo bix);
- my @age    = qw(99  12   44    52      12   43);
- my @weight = qw(99  52   80   124     120  230);
- 
- 
- sub new {
-     my $this = shift;
-     bless {}, ref($this) || $this;
- }
- 
- sub load_data {
-     my @data;
- 
-     for (0 .. 5) {
- 	push @data, { 
- 	    age    => $age[rand $#age] + int rand 20,
- 	    name   => shift @name,
- 	    weight => $weight[rand $#weight] + int rand 40
- 	    }
-     }
- 
-   Set::Array->new(@data);
- }
- 
- 
- 1;
-
-
-=head4 Sample Usage:
-
-       my $data = Simple::Class->load_data;
-       ++$_->{age} for @$data
-
-=head3 Inline Code to Unroll a Table
-
-=head4 HTML
-
- <html>
- 
-   <table id="load_data">
- 
-     <tr>  <th>name</th><th>age</th><th>weight</th> </tr>
- 
-     <tr id="iterate">
- 
-         <td id="name">   NATURE BOY RIC FLAIR  </td>
-         <td id="age">    35                    </td>
-         <td id="weight"> 220                   </td>
- 
-     </tr>
- 
-   </table>
- 
- </html>
-
-
-=head4 Perl
-
- require 'simple-class.pl';
- use HTML::Seamstress;
- 
- # load the view
- my $seamstress = HTML::Seamstress->new_from_file('simple.html');
- 
- # load the model
- my $o = Simple::Class->new;
- my $data = $o->load_data;
- 
- # find the <table> and <tr> 
- my $table_node = $seamstress->look_down('id', 'load_data');
- my $iter_node  = $table_node->look_down('id', 'iterate');
- my $table_parent = $table_node->parent;
- 
- 
- # drop the sample <table> and <tr> from the HTML
- # only add them in if there is data in the model
- # this is achieved via the $add_table flag
- 
- $table_node->detach;
- $iter_node->detach;
- my $add_table;
- 
- # Get a row of model data
- while (my $row = shift @$data) {
- 
-   # We got row data. Set the flag indicating ok to hook the table into the HTML
-   ++$add_table;
- 
-   # clone the sample <tr>
-   my $new_iter_node = $iter_node->clone;
- 
-   # find the tags labeled name age and weight and 
-   # set their content to the row data
-   $new_iter_node->content_handler($_ => $row->{$_}) 
-     for qw(name age weight);
- 
-   $table_node->push_content($new_iter_node);
- 
- }
- 
- # reattach the table to the HTML tree if we loaded data into some table rows
- 
- $table_parent->push_content($table_node) if $add_table;
- 
- print $seamstress->as_HTML;
- 
-
-
-=head3 Seamstress API call to Unroll a Table
-
- require 'simple-class.pl';
- use HTML::Seamstress;
- 
- # load the view
- my $seamstress = HTML::Seamstress->new_from_file('simple.html');
- # load the model
- my $o = Simple::Class->new;
- 
- $seamstress->table
-   (
-    # tell seamstress where to find the table, via the method call
-    # ->look_down('id', $gi_table). Seamstress detaches the table from the
-    # HTML tree automatically if no table rows can be built
- 
-      gi_table    => 'load_data',
- 
-    # tell seamstress where to find the tr. This is a bit useless as
-    # the <tr> usually can be found as the first child of the parent
- 
-      gi_tr       => 'iterate',
-      
-    # the model data to be pushed into the table
- 
-      table_data  => $o->load_data,
- 
-    # the way to take the model data and obtain one row
-    # if the table data were a hashref, we would do:
-    # my $key = (keys %$data)[0]; my $val = $data->{$key}; delete $data->{$key}
- 
-      tr_data     => sub { my ($self, $data) = @_;
- 			  shift(@{$data}) ;
- 			},
- 
-    # the way to take a row of data and fill the <td> tags
- 
-      td_data     => sub { my ($tr_node, $tr_data) = @_;
- 			  $tr_node->content_handler($_ => $tr_data->{$_})
- 			    for qw(name age weight) }
- 
-   );
- 
- 
- print $seamstress->as_HTML;
-
-
-=head3 Looping over Multiple Sample Rows
-
-* HTML
-
- <html>
- 
-   <table id="load_data" CELLPADDING=8 BORDER=2>
- 
-     <tr>  <th>name</th><th>age</th><th>weight</th> </tr>
- 
-     <tr id="iterate1" BGCOLOR="white" >
- 
-         <td id="name">   NATURE BOY RIC FLAIR  </td>
-         <td id="age">    35                    </td>
-         <td id="weight"> 220                   </td>
- 
-     </tr>
-     <tr id="iterate2" BGCOLOR="#CCCC99">
- 
-         <td id="name">   NATURE BOY RIC FLAIR  </td>
-         <td id="age">    35                    </td>
-         <td id="weight"> 220                   </td>
- 
-     </tr>
- 
-   </table>
- 
- </html>
-
-
-* Only one change to last API call. 
-
-This:
-
-	gi_tr       => 'iterate',
-
-becomes this:
-
-	gi_tr       => ['iterate1', 'iterate2']
-
-=head3 Whither a Table with No Rows
-
-Often when a table has no rows, we want to display a message
-indicating this to the view. Use conditional processing to decide what
-to display:
-
-	<span id=no_data>
-		<table><tr><td>No Data is Good Data</td></tr></table>
-	</span>
-	<span id=load_data>
- <html>
- 
-   <table id="load_data">
- 
-     <tr>  <th>name</th><th>age</th><th>weight</th> </tr>
- 
-     <tr id="iterate">
- 
-         <td id="name">   NATURE BOY RIC FLAIR  </td>
-         <td id="age">    35                    </td>
-         <td id="weight"> 220                   </td>
- 
-     </tr>
- 
-   </table>
- 
- </html>
-
-	</span>
 
 
 

@@ -34,11 +34,14 @@ my $module_pkg  = "$module_path$name";
 
 
 
-_verbose("Compiling $file to $module_pkg in $name.pm in directory\n$path");
+_verbose("Compiling $file to $module_pkg in $name.pm in directory\n\t$path");
 
 
 my ($content_subs, $content_look_downs) = find_content_subs();
 my ($highlander_subs, $highlander_look_downs) = find_highlander_klass();
+my ($iter_subs, $iter_look_downs) = find_iter_klass();
+my ($dual_iter_subs, $dual_iter_look_downs) = find_dual_iter_klass();
+
 #my $serial = serialize_html_parse($tree);
 my $scalars = sprintf 'my (%s);', join ',', map { '$'.$_ } @scalars;
 
@@ -142,6 +145,52 @@ sub find_content_subs {
   ($content_subs, $look_downs)
 }
 
+sub find_iter_klass {
+  my @sub;
+  my @klass_content = $tree->look_down(klass => 'iter') ;
+  _verbose( "found " . @klass_content . ' iter nodes ' );
+
+  my @scalar = map { 
+    my $id = $_->attr('id');
+    push @sub, make_iter_sub($id);
+    $id
+  } @klass_content;
+
+  my $subs = join "\n", @sub;
+
+  my $look_downs = join ";\n",
+    map { 
+      sprintf '$%s = $tree->look_down(id => q/%s/)', $_, $_ 
+    } @scalar;
+  
+  push @scalars, @scalar;
+
+  ($subs, $look_downs)
+}
+
+sub find_dual_iter_klass {
+  my @sub;
+  my @klass_content = $tree->look_down(klass => 'dual_iter') ;
+  _verbose( "found " . @klass_content . ' dual iter nodes ' );
+
+  my @scalar = map { 
+    my $id = $_->attr('id');
+    push @sub, make_dual_iter_sub($id);
+    $id
+  } @klass_content;
+
+  my $subs = join "\n", @sub;
+
+  my $look_downs = join ";\n",
+    map { 
+      sprintf '$%s = $tree->look_down(id => q/%s/)', $_, $_ 
+    } @scalar;
+  
+  push @scalars, @scalar;
+
+  ($subs, $look_downs)
+}
+
 sub find_highlander_klass {
   my @highlander_sub;
   my @klass_content = $tree->look_down(klass => 'highlander') ;
@@ -185,7 +234,7 @@ sub calc_docroot {
     }
 
     if (cwd eq '/') {
-      _verbose("\t$cfg not found");
+      die ("\t$cfg not found");
       return $cwd . '/';
     }
 
@@ -229,9 +278,39 @@ sub %s {
 }
 
 EOK
+
+sub make_iter_sub { sprintf <<'EOK', ($_[0]) x 4 }
+
+sub %s {
+   my $tree = shift;
+   if (@_) {
+      $%s->iter(@_);
+      return $tree
+   } else {
+      return $%s
+   }
+
+}
+
+EOK
+
+sub make_dual_iter_sub { sprintf <<'EOK', ($_[0]) x 3 }
+
+sub %s {
+   my $tree = shift;
+   if (@_) {
+      $%s->dual_iter(\@_);
+      return $tree
+   } else {
+      return $%s
+   }
+
+}
+
+EOK
   
 
-sub pkg { sprintf <<'EOPKG', $module_pkg, $scalars, $abs, $content_look_downs, $highlander_look_downs, $content_subs, $highlander_subs,  }
+sub pkg { sprintf <<'EOPKG', $module_pkg, $scalars, $abs, $content_look_downs, $highlander_look_downs, $iter_look_downs, $dual_iter_look_downs, $content_subs, $highlander_subs, $iter_subs, $dual_iter_subs  }
 package %s;
 use strict;
 use warnings;
@@ -239,7 +318,7 @@ use base qw(HTML::Seamstress);
 
 my $tree;
 
-%s
+#%s
 sub new {
 $tree = __PACKAGE__->new_from_file('%s');
 
@@ -249,12 +328,23 @@ $tree = __PACKAGE__->new_from_file('%s');
 # highlander_accessors
 %s;
 
+# iter_accessors
+%s;
+
+# dual_iter_accessors
+%s;
+
 $tree;
 }
 
 # content subs
 %s
 # highlander subs
+%s
+# iter subs
+%s
+
+# dual_iter subs
 %s
 
 sub tree {

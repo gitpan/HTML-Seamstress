@@ -1,4 +1,4 @@
-
+# Welcome to a -*- perl -*- test script
 use strict;
 use Test::More qw(no_plan);
 
@@ -10,9 +10,13 @@ sub req_ver {
   eval  $eval2 ;
 }
 
-my @module = qw(HTML::Seamstress Pod::Usage AppConfig::Std
-		HTML::Tree HTML::TreeBuilder HTML::Element
-		HTML::Parser HTML::Entities HTML::Tagset) ;
+my @module = 
+  qw(
+     HTML::Seamstress Pod::Usage AppConfig::Std HTML::Tree HTML::TreeBuilder 
+     HTML::Element HTML::Element::Library 
+     HTML::Parser HTML::Entities HTML::Tagset 
+     HTML::PrettyPrinter
+    ) ;
 
 req_ver($_) for @module;
 
@@ -27,4 +31,4 @@ warn sprintf
   scalar(localtime($^T)), scalar(gmtime($^T));
   
 ok 1;
-warn "# byebye from ", __FILE__, "\n";
+

@@ -1,15 +1,17 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         HTML-Seamstress
-version:      2.91
+version:      2.91d
 version_from: lib/HTML/Seamstress.pm
 installdirs:  site
 requires:
     AppConfig::Std:                1.07
+    Array::Dissect:                1.03
+    File::Slurp:                   9999.06
+    HTML::Element::Library:        0.01
+    HTML::PrettyPrinter:           0.03
     HTML::Tree:                    3.18
     Pod::Usage:                    1.16
-    Scalar::Listify:               0.02
-    Tie::Cycle:                    1.06
 
 distribution_type: module
 generated_by: ExtUtils::MakeMaker version 6.17
