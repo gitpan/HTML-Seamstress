@@ -61,7 +61,7 @@ The L</SYNOPSIS> gave an example of text substitution. From a
 tree-writing perspective, text substitution involves an in-place
 change to the content of a node of an HTML tree.
 
-=head2 Conditional Processing (aka if/unless/elsif/else) == Node Deletion 
+=head2 Conditional Processing (aka if/unless) == Node Deletion 
 
 In tree rewriting terms, an C<if> directive is used to decide whether a 
 particular node of the HTML tree is preserved or deleted.
@@ -369,6 +369,10 @@ L<http://perlmonks.org/index.pl?node_id=303188>
 =head2 Los Angeles Perl Mongers Talk on HTML::Seamstress
 
 L<http://www.metaperl.com>
+
+=head2 XMLC, A similar framework for Java
+
+L<http://xmlc.enhydra.org>
 
 =head1 AUTHOR
 

@@ -1,0 +1,13 @@
+2003-12-05  princepawn  <princepawn@perlmonk.org>
+
+	* lib/HTML/Seamstress.pm (unroll_select): actually got
+	unroll_select to work.
+
+	* added unroll_select function. uploaded as v2.3
+
+Revision history for Perl extension XML::Seamstress.
+
+0.01  Tue Oct 21 08:54:02 2003
+	- original version; created by h2xs 1.22 with options
+		-A -X -n XML::Seamstress
+

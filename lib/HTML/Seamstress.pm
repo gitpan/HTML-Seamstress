@@ -33,7 +33,7 @@ our @EXPORT = qw(
 		 htmls_compile
 );
 
-our $VERSION = '2.2';
+our $VERSION = '2.4';
 
 our $ID = 'id';
 
@@ -101,6 +101,34 @@ sub table {
     }
 
   $table->{parent}->push_content($table->{table_node}) if $add_table;
+
+}
+
+our ($select_data);
+sub unroll_select {
+
+  my ($s, %select) = @_;
+
+  my $select = {};
+
+  my $select_node = $s->look_down($ID, $select{select_label});
+
+  my $option = $select_node->look_down('_tag' => 'option');
+
+  $option->detach;
+
+  while (my $row = $select{option_data_iter}->())
+    {
+
+      warn Dumper($row);
+      my $o = $option->clone;
+      $o->attr('value', $select{option_value}->($row));
+      $o->detach_content;
+      $o->push_content($select{option_content}->($row));
+
+      $select_node->push_content($o);
+    }
+
 
 }
 
