@@ -61,6 +61,40 @@ The L</SYNOPSIS> gave an example of text substitution. From a
 tree-writing perspective, text substitution involves an in-place
 change to the content of a node of an HTML tree.
 
+There are two methods for rewriting the content of a node. The more powerful
+method is C<set_child_content>. The more convenient is C<content_handler>.
+
+=head3 $tree->set_child_content(@look_down, $content)
+
+This method looks down $tree using the criteria specified in 
+C<@look_down>
+using the the HTML::Element C<look_down()> method. 
+
+After finding the node, it detaches the node's content
+and pushes $content as the node's content.
+
+=head3 $tree->content_handler($sid_value , $content)
+
+This is a convenience method. Because the look_down criteria will often
+simply be:
+
+   sid => 'fixup'
+
+to find things like:
+
+   <a sid=fixup href=http://www.somesite.org>replace_content</a>
+
+You can call this method to shorten your typing a bit:
+
+   $tree->content_handler( fixup => 'new text' )
+
+Instead of typing:
+
+  $tree->set_child_content(sid => 'fixup', 'new text') 
+
+
+=head3 set_content()
+
 =head2 Conditional Processing (aka if/unless) == Node Deletion 
 
 In tree rewriting terms, an C<if> directive is used to decide whether a 

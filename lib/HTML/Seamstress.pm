@@ -30,10 +30,10 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
-		 htmls_compile
+
 );
 
-our $VERSION = '2.5';
+our $VERSION = '2.6';
 
 our $ID = 'id';
 
@@ -115,6 +115,9 @@ sub unroll_select {
 
   my $option = $select_node->look_down('_tag' => 'option');
 
+  warn $option;
+
+
   $option->detach;
 
   while (my $row = $select{option_data_iter}->())
@@ -136,22 +139,32 @@ sub unroll_select {
 sub HTML::Element::content_handler {
   my ($tree, $id_name, $content) = @_;
 
+  $tree->set_child_content($ID => $id_name, $content);
 
+}
 
-  my $content_tag = $tree->look_down($ID, $id_name);
-#  warn "my $content_tag = $tree->look_down($ID, $id_name);";
+sub HTML::Element::set_child_content {
+  my $tree      = shift;
+  my $content   = pop;
+  my @look_down = @_;
+
+  my $content_tag = $tree->look_down(@look_down);
 
   unless ($content_tag) {
-    warn "$id_name not found";
+    warn "@look_down not found";
     return;
   }
 
-  # delete dummy content
-  $content_tag->detach_content;        
-
-  # add new content
+  $content_tag->detach_content;
   $content_tag->push_content($content);
-#  warn $tree->as_HTML;
+
+}
+
+sub HTML::Element::set_sibling_content {
+  my ($elt, $content) = @_;
+
+  $elt->parent->splice_content($elt->pindex + 1, 1, $content);
+
 }
 
 
