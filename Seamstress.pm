@@ -21,7 +21,7 @@ use warnings;
 
 # version
 
-our $VERSION = sprintf '%s', q$Revision: 1.13 $ =~ /\S+\s+(\S+)\s+/;
+our $VERSION = sprintf '%s', q$Revision: 1.15 $ =~ /\S+\s+(\S+)\s+/;
 
 
 # code
@@ -259,31 +259,36 @@ sub visitor {
 	return 1;
     }
 
-#    warn sprintf "SUPPLY_ATTR (%s): $supply_attr", $node->attr('class');
-    if ($node->attr('class') eq $supply_attr) {
-	my $supply = $node->attr('id');
-	my $tmp = proc_supply($supply, $object, $node, $is_end_tag);
+    {
+	my $CLASS = $node->attr('class');
+	last unless $CLASS;
+
+	if ($CLASS eq $supply_attr) {
+	    my $supply = $node->attr('id');
+	    my $tmp = proc_supply($supply, $object, $node, $is_end_tag);
 #	warn "SUPPLY: ", Data::Dumper::Dumper($tmp);
-	$object->{supply} = $tmp;
-	return  $tmp;
-    }
+	    $object->{supply} = $tmp;
+	    return  $tmp;
+	}
 
-    if ($node->attr('class') eq $iterator_attr) {
-	my $iterator = $node->attr('id');
-#	warn "it : $iterator";
-	my $tmp = proc_iterator($iterator, $object, $node, $is_end_tag);
-	$object->{iterator} = $tmp;
-#	warn "ITERATOR: ", Data::Dumper::Dumper($tmp);
-	return $tmp;
-    }
-
-    if ($node->attr('class') eq $worker_attr) {
-	my $worker = $node->attr('id');
+	if ($CLASS eq $worker_attr) {
+	    my $worker = $node->attr('id');
 #	warn "wrk : $worker";
-	my $tmp = proc_worker($worker, $object, $node, $is_end_tag);
-	$object->{worker} = $tmp;
+	    my $tmp = proc_worker($worker, $object, $node, $is_end_tag);
+	    $object->{worker} = $tmp;
 #	warn "worker rets: ", Data::Dumper::Dumper($tmp);
-	return $tmp;
+	    return $tmp;
+	}
+
+	if ($CLASS =~ /$iterator_attr/) {
+	    my $iterator = $node->attr('id');
+#	warn "it : $iterator";
+	    my $tmp = proc_iterator($iterator, $object, $node, $is_end_tag);
+	$object->{$CLASS} = $tmp;
+#	warn "ITERATOR: ", Data::Dumper::Dumper($tmp);
+	    return $tmp;
+	}
+
     }
 
 
@@ -415,10 +420,6 @@ HTML::Seamstress - dynamic HTML generation via pure HTML and pure Perl.
   use HTML::Seamstress;
   HTML::Seamstress->weave(html => 'simple.html', using => 'Simple::Class');
 
-  # Perl call to generate a Perl program, which when run, generates HTML
-  use HTML::Seamstress;
-  HTML::Seamstress->compile(html => 'simple.html', using => 'Simple::Class');
-
   # Simple/Class.pm
  package simple;
 
@@ -452,6 +453,78 @@ HTML::Seamstress - dynamic HTML generation via pure HTML and pure Perl.
  1;
 
 =head1 DESCRIPTION
+
+HTML::Seamstress supports dynamic HTML. The amount of instrumention of 
+HTML is 100% view non-invasive and completely embedded within the 
+HTML tags of interest. Leading to maximum readability for the HTML
+designer and maximum cleanliness for the person instrumenting the HTML
+for dynamic HTML generation.
+
+=head2 Seamstress: a controller with HTML as the view and OO-Perl 
+as model
+
+If you as a Perl programmer can understand the next 4 bulleted items as they
+stand, you are done with learning Seamstress and can get on to the work of
+HTML templating. Note well that nothing in these paragraphs is anything other
+than a discussion of object-oriented Perl execution. Which means, with 
+Seamstress, you don't spend time learning the limitations someone put on
+Perl and you don't spend time learning things which are not Perl. You simply
+learn how 3 HTML class tags result in interpration of the result of evaluating
+the Perl code in the id tag and how this results in skipping or traversal of
+parts of the HTML
+
+=over 4
+
+=item * the supply CLASS
+
+When Seamstress encounters a tag with CLASS supply during HTML traversal,
+it evaluates the Perl code in the ID tag. Should this return a true value,
+then the subtree of this tag is traversed. Should it return a false value,
+then the subtree is skipped. 
+
+Example:
+
+  <span CLASS=supply id="$s->{browser} eq 'Netscape'">
+     Welcome netscape user
+  </span>
+
+  <span CLASS=supply id="$s->{browser} eq 'Explorer'">
+     Welcome explorer user
+  </span>
+
+Note that the supply CLASS obviates the need for an if-then pseudo element.
+
+=item * the iterator CLASS
+
+When Seamstress encounters a tag with CLASS iterator during HTML traversal,
+it evaluates the Perl code in the ID tag. Should this return a true value,
+then the subtree is traversed. When the end tag for the iterator CLASS tag 
+is encountered, we return and re-evaluate the Perl code in the ID tag once
+again. And we re-traverse the sub-tree again if it returns true. And if at
+any time it returns false, then we skip the subtree.
+
+Note: the iterator CLASS tag is a non-anchored regular expression match. 
+Thus you can have as many iterators as you want:
+
+ <span class=iterator_i id="int(rand 20) + int(rand 20)">
+    <br class=worker id="$s->_text($s->{iterator_i})"> </br>
+    
+    <span class=iterator_j id="int(rand 20) + int(rand 20)">
+      <br class=worker id="$s->_text($s->{iterator_j})"> </br>
+    </span>
+
+ </span>
+
+=item * the worker CLASS
+
+When Seamstress encounters a tag with CLASS worker during HTML traversal,
+it evaluates the Perl code in the ID tag. HTML traversal then continues as
+normal. In other words, a worker tag is not called for flow of control but
+rather for side-effect only.
+
+=back
+
+
 
 =head2 Disclaimer One - THIS IS ALPHA SOFTWARE. USE AT YOUR OWN RISK
 
@@ -682,6 +755,7 @@ one document with a maelstrom of if-then-elses.
 Again there isn't one. The combination of C<supply> and C<iterator> serves
 as a basic general purpose loop. In fact, if you look at the compiled 
 code, you will see something like this:
+
  {
    last unless $page->{iterator}->()
    ...
@@ -693,9 +767,14 @@ which is the most general Perl loop available.
 
 =head2 Where is the include file tag?
 
-There isn't one. I insist of using HTML reuse via HTML design programs.
+There isn't one. I insist on using HTML reuse via HTML design programs.
 Seamstress believes that a quality HTML designer can do quality things
 with a quality program and library element re-use is one of those things.
+
+However, you might also look at server-side includes to get include
+functionality. But then you are over-stepping that well-schooled HTML
+designer's skill set and forcing yourself to have a server up and running
+to get a look at finished pages...
 
 =head1 Closely related software products
 
@@ -722,7 +801,9 @@ In fact, HTML::Template itself requires you to learn a number of
 pseudo-HTML operators and then learn how to convert pure model code to
 a hashref for use by them. 
 
-I personally tire of learning more and more non-Perl syntax which makes
+=item * I personally tire of learning more and more non-Perl syntax 
+
+The attempts to shortcut Perl often make
 simple things easy and hard things acts of contortion. I'd rather stick
 with as much pure Perl and as little extra-perl-invented conventions.
 
