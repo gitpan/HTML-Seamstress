@@ -11,7 +11,7 @@ use Symbol;
 
 use HTML::Stitchery;
 use HTML::Tree;
-use Cache::MemoryCache;
+#use Cache::MemoryCache;
 
 # pragmas
 
@@ -21,7 +21,7 @@ use warnings;
 
 # version
 
-our $VERSION = sprintf '%s', q$Revision: 1.16 $ =~ /\S+\s+(\S+)\s+/;
+our $VERSION = sprintf '%s', q$Revision: 1.17 $ =~ /\S+\s+(\S+)\s+/;
 
 
 # code
@@ -500,12 +500,14 @@ purpose of this construct is to take a portion of the HTML tree and either
 delete it from the document to be output or allow it to remain.
 This is done by the HTML::Seamstress C<supply> CLASS tag.
 
-=item * node insertion
+=item * iterated child creation
 
 Most HTML templating systems include a for-loop of some kind. The purpose
-of such a loop is to take a particular HTML element, usually a <tr> tag and
-repeat it until some condition is met. Speaking tree-wise, this is nothing
-but a repeated insert of the <tr> tag. Such an operation is often coupled by 
+of such a loop is to take a particular HTML element, (e.g. a <tr> tag) and
+repeatedly insert it until some condition is met. 
+Speaking tree-wise, this is nothing
+but a repeated insert of <tr> as a child of a <table> tag. 
+Such an operation is often coupled by 
 workers within <td> tags making point mutations for each instance of node 
 insertion. It comes as no surprise that the name of the HTML::Seamstress
 node insertion C<CLASS> tag is C<iterator>. Because multiple iterators
