@@ -20,7 +20,7 @@ use warnings;
 
 # version
 
-our $VERSION = sprintf '%s', q$Revision: 1.9 $ =~ /\S+\s+(\S+)\s+/;
+our $VERSION = sprintf '%s', q$Revision: 1.10 $ =~ /\S+\s+(\S+)\s+/;
 
 
 # code
@@ -49,18 +49,11 @@ sub make_page_obj {
     my $page = $config->{using};
     my $page_object;
     
-    if (!$page) {
-#	$page_object = HTML::Stitchery->new(%$config);
-	die "NO PAGE... default implementation needed";
-    } else {
-#	warn "REQUIRE: $page";
+    eval "require $page" if $page;
+    croak $@ if ($@);
 
+    $page_object = $page->new;
 
-	eval "require $page" if $page;
-	croak $@ if ($@);
-
-	$page_object = $page->new;
-    }
     $page_object;
 }
 
