@@ -13,7 +13,10 @@
 
 <table>
 <tr>
-<td class=supply id="$s->{review}{missing}{first_name}"><small>This is a required field</small>
+<td class=supply id="$s->{review}{missing}{first_name}">
+<small>
+This is a required field
+</small>
 <td>First Name
 <td><input type="text" name="first_name"></td>
 </tr>
@@ -25,16 +28,34 @@
 </tr>
 
 <tr>
+
 <td>
-<small>This is a required field</small>
-<small>This is not a valid email address</small>
+<small class=supply id="$s->{review}{missing}{email}">
+This is a required field
+</small>
+<small class=supply id="$s->{review}{invalid}{email}">
+This is not a valid email address
+</small>
 </td>
+
 <td>Email address</td>
-<td><input type="text" name="last_name"></td>
+
+<td >
+<input 
+  class="worker" 
+  id="$s->_value($s->{vars}{email})"
+  type="text" 
+  name="email">
+
+</td>
+
 </tr>
 
 <tr>
-<td><small>This is not a valid phone number</small>
+<td>
+<small class=supply id="$s->{review}{invalid}{phone_number}">
+This is not a valid phone number
+</small>
 <td>Phone Number (optional)
 <td><input type="text" name="phone_number"></td>
 </tr>

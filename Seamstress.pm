@@ -9,6 +9,7 @@ use Symbol;
 
 # CPAN
 
+use HTML::Stitchery;
 use HTML::Tree;
 use Cache::MemoryCache;
 
@@ -20,7 +21,7 @@ use warnings;
 
 # version
 
-our $VERSION = sprintf '%s', q$Revision: 1.12 $ =~ /\S+\s+(\S+)\s+/;
+our $VERSION = sprintf '%s', q$Revision: 1.13 $ =~ /\S+\s+(\S+)\s+/;
 
 
 # code
@@ -47,12 +48,14 @@ sub temp_package {
 sub make_page_obj {
   my ($self,$config) = @_;
   my $page = $config->{using};
-  my $page_object = {};
+  my $page_object;
     
   if ($page) {
     eval "require $page";
     croak $@ if ($@);
     $page_object = $page->new;
+  } else {
+    $page_object = HTML::Stitchery->new;
   }
 
 

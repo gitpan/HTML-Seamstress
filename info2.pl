@@ -15,7 +15,8 @@ require Data::FormValidator;
 
 my $i = {
     required => [qw(first_name email)],
-    optional => [qw(last_name phone_number comments)]
+    optional => [qw(last_name phone_number comments)],
+    constraints => { email => 'email' }
     };
 my $v = Data::FormValidator->new($i);
 my $vars = $q->Vars;
@@ -28,8 +29,16 @@ warn "dfv_results", Dumper($valid, $missing, $invalid, $unknown);
 warn "calling with inject!";
 
 my %m = map { $_ => 1 } @$missing;
+my %i = map { $_ => 1 } @$invalid;
 
 __PACKAGE__->weave(html      => $html, 
-		   injecting => { review => { missing => \%m } }
-		   );
+		   injecting => 
+		   { 
+		    review => { 
+			       missing => \%m,
+			       invalid => \%i
+			      },
+		    vars    => $vars
+		   }
+		  );
 
