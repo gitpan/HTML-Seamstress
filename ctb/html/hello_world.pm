@@ -1,35 +1,44 @@
 package html::hello_world;
-use vars qw($tree);
-use HTML::TreeBuilder;
+use base HTML::Seamstress;
 
+use vars qw($tree);
 tree();
 
-# look_down
+# look_down for klass tags
 my $name = $tree->look_down(id => q/name/);
 my $date = $tree->look_down(id => q/date/);
 
 # content subs
 
 sub name {
-	my $content = shift;
-        $name->content_handler(name => $content);
-        $tree;
+   my $class = shift;
+   my $content = shift;
+   if (defined($content)) {
+      $name->content_handler(name => $content);
+   } else {
+      $name
+   }
+   $tree;
 }
 	
 
 
 
 sub date {
-	my $content = shift;
-        $date->content_handler(date => $content);
-        $tree;
+   my $class = shift;
+   my $content = shift;
+   if (defined($content)) {
+      $date->content_handler(date => $content);
+   } else {
+      $date
+   }
+   $tree;
 }
 	
 
 
 
-$tree->dump;
-
+# the html file /home/terry/perl/hax/HTML-Seamstress-2.6/ctb/small.html
 sub tree {
 # serial
 $tree = bless( {
@@ -108,13 +117,13 @@ $tree = bless( {
                  '_implicit_body_p_tag' => 0,
                  '_warn' => 0,
                  '_p_strict' => 0,
-                 '_hparser_xs_state' => \137223920,
+                 '_hparser_xs_state' => \137837248,
                  '_element_count' => 3,
                  '_store_declarations' => 0,
                  '_tag' => 'html',
                  '_store_pis' => 0,
                  '_element_class' => 'HTML::Element'
-               }, 'HTML::TreeBuilder' );
+               }, 'html::hello_world' );
 $tree->{'_head'}{'_parent'} = $tree;
 $tree->{'_head'}{'_content'}[0]{'_parent'} = $tree->{'_head'};
 $tree->{'_content'}[0] = $tree->{'_head'};

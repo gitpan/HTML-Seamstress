@@ -1,6 +1,9 @@
-use HTML::TreeBuilder;
+use HTML::Seamstress;
+use File::Spec;
 
-my $tree = HTML::TreeBuilder->new_from_file('small.html');
+my $file = 'small.html';
+my $abs  = File::Spec->rel2abs($file);
+my $tree = HTML::Seamstress->new_from_file($file);
 
 my @content = $tree->look_down(klass => 'content') ;
 
@@ -21,8 +24,10 @@ $Data::Dumper::Purity = 1;
 
 open D, '>html/hello_world.pm' or die $!;
 
-our $serial = Data::Dumper->Dump([$tree], ['tree']);
 our $pkg    = 'html::hello_world';
+our $serial = Data::Dumper->Dump([$tree], ['tree']);
+
+$serial =~ s/HTML::Seamstress/$pkg/;
 
 our $look_down =  join ";\n",
   map { sprintf 'my $%s = $tree->look_down(id => q/%s/)', $_, $_ } @scalar;
@@ -32,33 +37,37 @@ our $kontent = join "\n", @kontent;
 print D pkg();
 
 
-sub kontent { sprintf <<'EOK', $_[0], $_[0], $_[0] }
+sub kontent { sprintf <<'EOK', ($_[0]) x 4 }
 
 sub %s {
-	my $content = shift;
-        $%s->content_handler(%s => $content);
-        $tree;
+   my $class = shift;
+   my $content = shift;
+   if (defined($content)) {
+      $%s->content_handler(%s => $content);
+   } else {
+      $%s
+   }
+   $tree;
 }
 	
 
 EOK
   
 
-sub pkg { sprintf <<'EOPKG', $pkg, $look_down, $kontent, $serial }
+sub pkg { sprintf <<'EOPKG', $pkg, $look_down, $kontent, $abs, $serial }
 package %s;
-use vars qw($tree);
-use HTML::TreeBuilder;
+use base HTML::Seamstress;
 
+use vars qw($tree);
 tree();
 
-# look_down
+# look_down for klass tags
 %s;
 
 # content subs
 %s
 
-$tree->dump;
-
+# the html file %s
 sub tree {
 # serial
 %s
