@@ -20,7 +20,7 @@ use warnings;
 
 # version
 
-our $VERSION = sprintf '%s', q$Revision: 1.10 $ =~ /\S+\s+(\S+)\s+/;
+our $VERSION = sprintf '%s', q$Revision: 1.11 $ =~ /\S+\s+(\S+)\s+/;
 
 
 # code
@@ -49,10 +49,11 @@ sub make_page_obj {
     my $page = $config->{using};
     my $page_object;
     
-    eval "require $page" if $page;
-    croak $@ if ($@);
-
-    $page_object = $page->new;
+    if ($page) {
+	eval "require $page";
+	croak $@ if ($@);
+	$page_object = $page->new;
+    }
 
     $page_object;
 }
@@ -70,8 +71,13 @@ sub weave {
     
 #    warn $config{html};
 
-    my $tree = HTML::TreeBuilder->new_from_file($config{html}) 
-	or die "cannot open HTML file $config{file}: $!";
+    $config{html} or die "HTML file $config{html} not defined.";
+
+    my $tree = HTML::TreeBuilder->new_from_file($config{html})
+      or die "error building tree from $config{html}: $!";
+
+
+#    warn 'TREE: ', $tree->dump;
 
     $tree->ignore_ignorable_whitespace(0);
 
@@ -115,9 +121,12 @@ sub compile {
     print "use HTML::TreeBuilder;\n";
     use Cwd;
     my $dir = getcwd;
-    print "use lib '$dir';\n";
-    print "use $config{using};\n" if $config{using};
-    print qq{ my \$s = $config{using}->new ; } ;
+
+    if ($config{using}) {
+      print "use lib '$dir';\n";
+      print "use $config{using};\n" ;
+      print " my \$s = $config{using}->new;\n" ;
+    }
     print 'my $tree = ';
 
     my @dump = split /\s+/, Dumper($tree);
