@@ -408,9 +408,9 @@ L<http://www.metaperl.com>
 
 L<http://xmlc.enhydra.org>
 
-=head2 Similar Frameworks for Perl 
+=head2 Similar Frameworks for Perl (DOM-based)
 
-Two other frameworks come to mind. Both are stricter with regard
+Two other DOM-based frameworks come to mind. Both are stricter with regard
 to the correctness of the HTML and both use a different means for 
 node lookup and rewrite.
 
@@ -438,7 +438,7 @@ Terrence Brannon, E<lt>tbone@cpan.org<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2002-2004 by Terrence Brannon.
+Copyright 2003 by Terrence Brannon.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

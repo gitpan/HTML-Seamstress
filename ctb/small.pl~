@@ -1,0 +1,5 @@
+my $tree = HTML::TreeBuilder->new_from_file('small.html');
+
+use Data::Dumper;
+
+warn Dumper $tree;

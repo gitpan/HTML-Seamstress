@@ -1,0 +1,18 @@
+XML::DOM
+? More familiar with TReeBuilder but XML::Generator::DOM is nice.
+
+--
+
+classes or prototypes
+
+a/ a call should get the node:
+   
+b/ autoload
+-- context-sensitive XML generation?
+
+@children = 
+
+--
+
+callbacks?
+

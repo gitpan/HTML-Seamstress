@@ -1,0 +1,6 @@
+use Data::Dumper;
+
+warn Dumper ['ul',
+	     map ['li', $_]
+	     qw(Peaches Apples Pears Mangos)
+	    ] ;

@@ -1,0 +1,90 @@
+package html::hello_world;
+use vars qw($tree);
+BEGIN { tree() } ;
+
+$tree->dump;
+
+sub tree {
+$tree = bless( {
+                 '_done' => 1,
+                 '_implicit_tags' => 1,
+                 '_tighten' => 1,
+                 '_head' => bless( {
+                                     '_parent' => $tree,
+                                     '_content' => [
+                                                     bless( {
+                                                              '_parent' => $tree->{'_head'},
+                                                              '_content' => [
+                                                                              'Hello World'
+                                                                            ],
+                                                              '_tag' => 'title'
+                                                            }, 'HTML::Element' )
+                                                   ],
+                                     '_tag' => 'head'
+                                   }, 'HTML::Element' ),
+                 '_store_comments' => 0,
+                 '_content' => [
+                                 $tree->{'_head'},
+                                 bless( {
+                                          '_parent' => $tree,
+                                          '_content' => [
+                                                          bless( {
+                                                                   '_parent' => $tree->{'_content'}[1],
+                                                                   '_content' => [
+                                                                                   'Hello World'
+                                                                                 ],
+                                                                   '_tag' => 'h1'
+                                                                 }, 'HTML::Element' ),
+                                                          bless( {
+                                                                   '_parent' => $tree->{'_content'}[1],
+                                                                   '_content' => [
+                                                                                   'Hello, my name is ',
+                                                                                   bless( {
+                                                                                            '_parent' => $tree->{'_content'}[1]{'_content'}[1],
+                                                                                            '_content' => [
+                                                                                                            'ah, Clem'
+                                                                                                          ],
+                                                                                            '_tag' => 'span',
+                                                                                            'id' => 'name'
+                                                                                          }, 'HTML::Element' ),
+                                                                                   '. '
+                                                                                 ],
+                                                                   '_tag' => 'p'
+                                                                 }, 'HTML::Element' ),
+                                                          bless( {
+                                                                   '_parent' => $tree->{'_content'}[1],
+                                                                   '_content' => [
+                                                                                   'Today\'s date is ',
+                                                                                   bless( {
+                                                                                            '_parent' => $tree->{'_content'}[1]{'_content'}[2],
+                                                                                            '_content' => [
+                                                                                                            'Oct 6, 2001'
+                                                                                                          ],
+                                                                                            '_tag' => 'span',
+                                                                                            'id' => 'date'
+                                                                                          }, 'HTML::Element' ),
+                                                                                   '. '
+                                                                                 ],
+                                                                   '_tag' => 'p'
+                                                                 }, 'HTML::Element' )
+                                                        ],
+                                          '_tag' => 'body'
+                                        }, 'HTML::Element' )
+                               ],
+                 '_body' => $tree->{'_content'}[1],
+                 '_ignore_unknown' => 1,
+                 '_pos' => undef,
+                 '_ignore_text' => 0,
+                 '_no_space_compacting' => 0,
+                 '_implicit_body_p_tag' => 0,
+                 '_warn' => 0,
+                 '_p_strict' => 0,
+                 '_hparser_xs_state' => \135680696,
+                 '_element_count' => 3,
+                 '_store_declarations' => 0,
+                 '_tag' => 'html',
+                 '_store_pis' => 0,
+                 '_element_class' => 'HTML::Element'
+               }, 'HTML::TreeBuilder' );
+
+}

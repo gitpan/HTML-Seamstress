@@ -1,0 +1,21 @@
+ChangeLog
+Makefile.PL
+MANIFEST
+README
+lib/XML/Seamstress.pm
+lib/HTML/Seamstress.pm
+lib/HTML/Seamstress/Compiler.pm
+lib/HTML/Seamstress.pod
+samples/synopsis.pl
+samples/synopsis.pl-wrong
+samples/synopsis.html
+samples/tag_handler.html
+samples/tag_handler.pl
+samples/unroll_select.html
+samples/unroll_select.pl
+scripts/compile
+scripts/file.html
+scripts/Simple/Class.pm
+scripts/preamble
+t/1.t
+META.yml                                Module meta-data (added by MakeMaker)
