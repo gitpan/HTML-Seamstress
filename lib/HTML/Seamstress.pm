@@ -33,7 +33,7 @@ our @EXPORT = qw(
 
 );
 
-our $VERSION = '2.6';
+our $VERSION = '2.7';
 
 our $ID = 'id';
 

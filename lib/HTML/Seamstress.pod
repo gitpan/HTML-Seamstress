@@ -408,6 +408,30 @@ L<http://www.metaperl.com>
 
 L<http://xmlc.enhydra.org>
 
+=head2 Similar Frameworks for Perl (DOM-based)
+
+Two other DOM-based frameworks come to mind. Both are stricter with regard
+to the correctness of the HTML and both use a different means for 
+node lookup and rewrite.
+
+For me, Seamstress was a natural extension of my love for 
+HTML::TreeBuilder, but if I had an XML job to do, I really think I would
+reach for Petal. It is quite sweet.
+
+=over
+
+=item * L<Petal>
+
+Based on Zope's TAL, this is a very nice and complete framework that is
+the basis of MkDoc, a XML application server.
+
+=item * L<XML::LibXML>
+
+By the XML guru Matt Sergeant, who is also the author of AxKit, another XML 
+application server.
+
+=back
+
 =head1 AUTHOR
 
 Terrence Brannon, E<lt>tbone@cpan.org<gt>
