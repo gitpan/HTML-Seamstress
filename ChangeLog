@@ -1,9 +1,7 @@
-2003-12-05  princepawn  <princepawn@perlmonk.org>
+2003-12-15  U-MOKSHA\metaperl  <metaperl@urth.org>
 
-	* lib/HTML/Seamstress.pm (unroll_select): actually got
-	unroll_select to work.
-
-	* added unroll_select function. uploaded as v2.3
+	* added samples/synopsis* to distro so that the SYNOPSIS is
+	actually executable!
 
 Revision history for Perl extension XML::Seamstress.
 

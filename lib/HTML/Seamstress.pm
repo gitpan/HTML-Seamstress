@@ -33,7 +33,7 @@ our @EXPORT = qw(
 		 htmls_compile
 );
 
-our $VERSION = '2.4';
+our $VERSION = '2.5';
 
 our $ID = 'id';
 

@@ -5,6 +5,9 @@ README
 lib/XML/Seamstress.pm
 lib/HTML/Seamstress.pm
 lib/HTML/Seamstress.pod
+samples/synopsis.pl
+samples/synopsis.pl-wrong
+samples/synopsis.html
 scripts/compile
 scripts/file.html
 scripts/Simple/Class.pm
