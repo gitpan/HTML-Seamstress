@@ -1,0 +1,253 @@
+=head1 NAME
+
+HTML::Seamstress - Perl extension for HTML generation via tree rewriting
+
+=head1 SYNOPSIS
+
+=head2 HTML "adulterated" with id attributes
+
+ <html>
+ <head>
+   <title>Hello World</title>
+ </head>
+ <body>
+ <h1>Hello World</h1>
+   <p>Hello, my name is <span id="name">ah, Clem</span>.
+   <p>Today's date is <span id="date">Oct 6, 2001</span>.
+ </body>
+ </html>
+
+=head2 Perl finds nodes in the tree and rewrites them:
+
+  use HTML::Seamstress; # HTML::Seamstress isa HTML::TreeBuilder :)
+  my $tree = HTML::Seamstress->new_from_file($html_file);
+  $tree->name_handler('bob');
+  $tree->date_handler(`date`);
+  
+  sub name_handler {
+    my ($tree, $name) = @_;
+
+    my $name_tag = $tree->look_down('id', 'name');
+    $name_tag->detach_content; # delete dummy content ("ah, Clem")
+    $name_tag->push_content($name);
+  }
+
+  sub date_handler {
+    my ($tree, $date) = @_;
+
+    my $name_tag = $tree->look_down('id', 'date');
+    $name_tag->detach_content; # delete dummy content ("Oct 6, 2001")
+    $name_tag->push_content($date);
+  }
+
+=head3 Or with convenience methods:
+
+  use HTML::Seamstress; 
+  my $tree = HTML::Seamstress->new_from_file($html_file);
+  $tree->content_handler(name => 'bob');
+  $tree->content_handler(date => `date`);
+
+
+=head1 DESCRIPTION
+
+From reading L<HTML::Tree::Scanning>, we know that HTML has a tree
+structure. HTML::Seamstress is a subclass of L<HTML::TreeBuilder>
+which makes it a little easier to perform common HTML templating
+operations as tree rewriting.
+
+=head2 Text Substitution == Node rewriting
+
+The L</SYNOPSIS> gave an example of text substitution. From a
+tree-writing perspective, text substitution involves an in-place
+change to the content of a node of an HTML tree.
+
+=head2 (Conditional Processing aka if/unless/elsif/else) == Node Deletion 
+
+In tree rewriting terms, an C<if> directive is used to decide whether a 
+particular node of the HTML tree is preserved or deleted.
+
+For example, given this Template-style HTML:
+
+ [% IF age < 10 %]
+       Hello, does your mother know you're 
+       using her AOL account?
+ [% ELSIF age < 18 %]
+       Sorry, you're not old enough to enter 
+       (and too dumb to lie about your age)
+ [% ELSE %]
+       Welcome
+ [% END %]
+
+Here is the HTML and Perl for Seamstress:
+
+  <span id=age_handler>
+    <span id="under10">
+       Hello, does your mother know you're 
+       using her AOL account?
+    </span>
+    <span id="under18">
+       Sorry, you're not old enough to enter 
+       (and too dumb to lie about your age)
+    </span>
+    <span id="welcome">
+       Welcome
+    </span>
+  </span>
+
+ package HTML::Seamstress
+ use HTML::Seamstress;
+ my $tree = HTML::Seamstress->new();
+ $tree->parse_file($filename);
+ $tree->age_handler($age);
+ print $tree->as_HTML;
+
+ sub age_handler {
+   my ($tree, $age) = @_;
+   my $SPAN = $tree->look_down('id', 'age_handler');
+   if ($age < 10) {
+    $SPAN->look_down('id', $_)->detach for qw(under18 welcome);
+   } elsif ($age < 18) {
+    $SPAN->look_down('id', $_)->detach for qw(under10 welcome);
+  } else {
+        $SPAN->look_down('id', $_)->detach for qw(under10 under18);
+  }
+
+ }
+
+
+=head2 Looping (e.g. able Unrolling) == Child Replication
+
+=head3 Sample Model
+
+ package Simple::Class;
+ 
+ use Set::Array;
+ 
+ my @name   = qw(bob bill brian babette bobo bix);
+ my @age    = qw(99  12   44    52      12   43);
+ my @weight = qw(99  52   80   124     120  230);
+ 
+ 
+ sub new {
+     my $this = shift;
+     bless {}, ref($this) || $this;
+ }
+ 
+ sub load_data {
+     my @data;
+ 
+     for (0 .. 5) {
+ 	push @data, { 
+ 	    age    => $age[rand $#age] + int rand 20,
+ 	    name   => shift @name,
+ 	    weight => $weight[rand $#weight] + int rand 40
+ 	    }
+     }
+ 
+   Set::Array->new(@data);
+ }
+ 
+ 
+ 1;
+
+
+=head4 Sample Usage:
+
+       my $data = Simple::Class->load_data;
+       ++$_->{age} for @$data
+
+=head3 Inline Code to Unroll a Table
+
+=head4 HTML
+
+ <html>
+ 
+   <table id="load_data">
+ 
+     <tr>  <th>name</th><th>age</th><th>weight</th> </tr>
+ 
+     <tr id="iterate">
+ 
+         <td id="name">   NATURE BOY RIC FLAIR  </td>
+         <td id="age">    35                    </td>
+         <td id="weight"> 220                   </td>
+ 
+     </tr>
+ 
+   </table>
+ 
+ </html>
+
+
+=head4 Perl
+
+Program fragment delivered error ``Can't find string terminator "'" anywhere before EOF at lib/HTML/Seamstress.tt line 137, <F> line 47.''
+
+=head3 Seamstress API call to Unroll a Table
+
+Program fragment delivered error ``couldnt open file : No such file or directory at ./tt.pl line 18, <F> line 47.''
+
+=head3 Looping over Multiple Sample Rows
+
+* HTML
+
+Program fragment delivered error ``syntax error at lib/HTML/Seamstress.tt line 147, near "#line 147 lib/HTML/Seamstress.tt
+slide_code 'loop/simple-alt.html'"''
+
+* Only one change to last API call. 
+
+This:
+
+	gi_tr       => 'iterate',
+
+becomes this:
+
+	gi_tr       => ['iterate1', 'iterate2']
+
+=head3 Whither a Table with No Rows
+
+Use Conditional Processing before Child Replication. In human terms, 
+    if (no data) { pop in a no data table }
+    else { pop in the data table }
+
+	<span id=no_data>
+		<table><tr><td>No Data is Good Data</td></tr></table>
+	</span>
+	<span id=load_data>
+Program fragment delivered error ``couldnt open file : No such file or directory at ./tt.pl line 18, <F> line 47.''
+	</span>
+
+
+
+=head2 EXPORT
+
+None by default.
+
+
+
+=head1 SEE ALSO
+
+=head2 HTML Templating as Tree Rewriting: Part I: "If Statements"
+
+L<http://perlmonks.org/index.pl?node_id=302606>
+
+=head2 HTATR II: HTML table generation via DWIM tree rewriting
+
+L<http://perlmonks.org/index.pl?node_id=303188>
+
+=head2 Los Angeles Perl Mongers Talk on HTML::Seamstress
+
+L<http://www.metaperl.com>
+
+=head1 AUTHOR
+
+Terrence Brannon, E<lt>tbone@cpan.org<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2003 by Terrence Brannon.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself. 
+
+=cut

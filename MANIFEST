@@ -1,13 +1,13 @@
 Changes
 Makefile.PL
 MANIFEST
-Seamstress.pm
-demos/build-compile
-demos/build-interp
-demos/simple.html
-demos/Simple/Class.pm
-demos/compile.pl
-demos/interp.pl
-test.pl
-info-tidy.html
-info2.pl
+README
+lib/XML/Seamstress.pm
+lib/HTML/Seamstress.pm
+lib/HTML/Seamstress.pod
+scripts/compile
+scripts/file.html
+scripts/Simple/Class.pm
+scripts/preamble
+t/1.t
+META.yml                                Module meta-data (added by MakeMaker)

@@ -1,3 +1,0 @@
-perl compile.pl > compile.perl
-perl compile.perl > compile.html
-html_tidy compile.html > compile.tidy
