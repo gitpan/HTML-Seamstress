@@ -1,3 +1,0 @@
-pushd ../..; make install ; popd ; perl simple.pl > simple.perl
-perl simple.perl > simple.ch
-~/bin/pp.pl simple.ch > simple.chtml

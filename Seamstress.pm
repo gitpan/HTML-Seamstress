@@ -2,7 +2,6 @@ package HTML::Seamstress;
 
 use Carp qw(croak);
 
-
 # perl core
 
 use Data::Dumper;
@@ -22,7 +21,7 @@ use warnings;
 
 # version
 
-our $VERSION = sprintf '%s', q$Revision: 1.4 $ =~ /\S+\s+(\S+)\s+/;
+our $VERSION = sprintf '%s', q$Revision: 1.5 $ =~ /\S+\s+(\S+)\s+/;
 
 
 # code
@@ -55,17 +54,13 @@ sub make_page_obj {
 #	$page_object = HTML::Stitchery->new(%$config);
 	die "NO PAGE... default implementation needed";
     } else {
-	my $eval = "require '$page'";
-	warn "EVAL: $eval";
-	my $r = eval $eval;
-	warn "RET EVAL: $r ... dollar-at: $@";
+	warn "REQUIRE: $page";
+
+
+	eval "require $page";
 	croak $@ if ($@);
 
-	my ($package) = ($page =~ /(.*).pm/);
-
-	warn "PKG: $package";
-
-	$page_object = $package->new;
+	$page_object = $page->new;
     }
     $page_object;
 }
@@ -74,8 +69,6 @@ sub make_page_obj {
 # The "constructor", so to speak. 
 
 sub weave {
-    
-
 
     my ($class, @config) = @_;
 
@@ -88,22 +81,15 @@ sub weave {
     my $tree = HTML::TreeBuilder->new_from_file($config{html}) 
 	or die "cannot open HTML file $config{file}: $!";
 
-
-
     $tree->ignore_ignorable_whitespace(0);
 
     $self->{tree}     = $tree;
-
-
 
     $self->{page_object} = $self->make_page_obj(\%config);
 
     $self->{visitor}  = \&HTML::Seamstress::visitor;
 
-
-
     $self->visit($tree->root);
-
 }
 
 sub compile {
@@ -138,7 +124,8 @@ sub compile {
     use Cwd;
     my $dir = getcwd;
     print "use lib '$dir';\n";
-    print "require '$config{using}';\n";
+    print "use $config{using};\n";
+    print qq{ my \$s = $config{using}->new ; } ;
     print 'my $tree = ';
 
     my @dump = split /\s+/, Dumper($tree);
@@ -203,7 +190,6 @@ sub visit {
 #	    warn sprintf "%s CLOSE rv: %d", $node->endtag, $rv;
 	$self->visit($node) if $rv;
     } 
-
 }
 
 sub proc_args {
@@ -273,14 +259,17 @@ sub visitor {
 	return 1;
     }
 
-    if (my $supply = $node->attr($supply_attr)) {
+    warn sprintf "SUPPLY_ATTR (%s): $supply_attr", $node->attr('class');
+    if ($node->attr('class') eq $supply_attr) {
+	my $supply = $node->attr('id');
 	my $tmp = proc_supply($supply, $object, $node, $is_end_tag);
 #	warn "SUPPLY: ", Data::Dumper::Dumper($tmp);
 	$object->{supply} = $tmp;
 	return  $tmp;
     }
 
-    if (my $iterator = $node->attr($iterator_attr)) {
+    if ($node->attr('class') eq $iterator_attr) {
+	my $iterator = $node->attr('id');
 #	warn "it : $iterator";
 	my $tmp = proc_iterator($iterator, $object, $node, $is_end_tag);
 	$object->{iterator} = $tmp;
@@ -288,7 +277,8 @@ sub visitor {
 	return $tmp;
     }
 
-    if (my $worker = $node->attr($worker_attr)) {
+    if ($node->attr('class') eq $worker_attr) {
+	my $worker = $node->attr('id');
 #	warn "wrk : $worker";
 	my $tmp = proc_worker($worker, $object, $node, $is_end_tag);
 	$object->{worker} = $tmp;
@@ -334,14 +324,16 @@ EOT
 	return 1;
     }
 
-    if (my $supply = $node->attr($supply_attr) and not $is_end_tag) {
+    if ($node->attr('class') eq $supply_attr and not $is_end_tag) {
+	my $supply = $node->attr('id');
 	my $code =<<"EOT";
 	if (\$s->{supply} = $supply) {
 EOT
     bean_store $object, (bless sub { $code }, $supply_attr), $node;
     }
 
-    if (not $is_end_tag and my $iterator = $node->attr($iterator_attr)) {
+    if (not $is_end_tag and $node->attr('class') eq $iterator_attr) {
+	my $iterator = $node->attr('id');
 	my $code =<<"EOT";
 	{
 	    last unless (\$s->{iterator} = $iterator);
@@ -349,7 +341,8 @@ EOT
     bean_store $object, (bless sub { $code } , $iterator_attr), $node;
     }
 
-    if (my $worker = $node->attr($worker_attr)) {
+    if ($node->attr('class') eq $worker_attr) {
+	my $worker = $node->attr('id');
 	my $node_code = 
 	    sprintf '$s->{node} = $tree->address("%s")', $node->address;
 	my $code =<<"EOT";
@@ -373,8 +366,8 @@ EOT
 	my $code =<<"EOT";
 	    print q{$endtag};
 EOT
-    $code .= "\n} ### end supply tag" if ($node->attr($supply_attr));
-    $code .= "redo\n} ### end iterator tag" if ($node->attr($iterator_attr));
+    $code .= "\n} # end supply tag" if ($node->attr('class') eq $supply_attr);
+    $code .= "redo\n} # end iterator tag" if ($node->attr('class') eq $iterator_attr);
 
     bean_store $object, (bless sub { $code } , $endtag_attr), $node;
 	return 0;
@@ -400,15 +393,15 @@ HTML::Seamstress - dynamic HTML generation via pure HTML and pure Perl.
   # HTML
   <html>
 
-  <table supply="$s->_aref($s->load_data)">
+  <table class=supply id="$s->_aref($s->load_data)">
 
     <tr>  <th>name<th>age<th>weight</th> </tr>
 
-    <tr iterator="$s->{supply}->Next">
+    <tr class=iterator id="$s->{supply}->Next">
 
-        <td worker="$s->_text($s->{iterator}->{name})">    </td>
-        <td worker="$s->_text($s->{iterator}->{age})">     </td>
-        <td worker="$s->_text($s->{iterator}->{weight})">  </td>
+        <td class=worker id="$s->_text($s->{iterator}->{name})">    </td>
+        <td class=worker id="$s->_text($s->{iterator}->{age})">     </td>
+        <td class=worker id="$s->_text($s->{iterator}->{weight})">  </td>
 
    </tr>
 
@@ -418,12 +411,12 @@ HTML::Seamstress - dynamic HTML generation via pure HTML and pure Perl.
 
   # Perl
   use HTML::Seamstress;
-  HTML::Seamstress->weave(html => 'simple.html', with => 'simple.pm');
+  HTML::Seamstress->weave(html => 'simple.html', using => 'Simple::Class');
 
-  # simple.pm
+  # Simple/Class.pm
  package simple;
 
- use base qw(HTML::Seamstress::Iterator HTML::Stitchery);
+ use base qw(HTML::Stitchery);
 
  my @name   = qw(bob bill brian babette bobo bix);
  my @age    = qw(99  12   44    52      12   43);
@@ -454,13 +447,19 @@ HTML::Seamstress - dynamic HTML generation via pure HTML and pure Perl.
 
 =head1 DESCRIPTION
 
-C<HTML::Seamstress>  allows webpages to be built by
+=head2 Disclaimer One - THIS IS ALPHA SOFTWARE. USE AT YOUR OWN RISK
+
+=head2 Disclaimer Two - This package is (too?) similar to HTML::Template
+
+
+=head2 On to the description
+
+C<HTML::Seamstress> allows webpages to be built by
 serving as the bridge between experts in their respective pure
 technologies: HTML experts do their thing, object-oriented Perl
 experts do their thing and C<HTML::Seamstress> serves to weave the two
 together, traversing the pure HTML and making use of the output of
 Perl objects at various points in the traversal. 
-
 
 Its distinctive feature, unlike existing techniques,
 is that it uses I<pure>, standard HTML files:
@@ -468,35 +467,38 @@ no print-statement-laden CGI scripts,
 no embedded statements from some programming langauge,
 and no pseudo-HTML elements.
 Code is cleanly separated into a separate file.
-What links the two together are semantic attributes for HTML elements.
+What links the two together are semantic attributes (CLASS and ID)
+for HTML elements.
 
 In model-view-controller terms, the HTML is the view. Seamstress is
-the controller, making calls to Perl methods to retrieve model data
+the controller, making calls to view-agnostic 
+Perl methods to retrieve model data
 for inclusion in the view. 
 
 In C<HTML::Seamstress> the model classes are completely view and
-controller independant, and are thus use-able outside of HTML and more
+controller independant, and are thus use-able outside of HTML and most
 importantly, unit-testable outside of Perl.
 
 Seamstress knows what Perl methods to call and when by the looking up
-specific attributes within a tag that are special to it. The attributes are
-C<supply>, C<iterator>, and C<worker> tags.
+CLASS attributes within a tag that are special to it. The attributes are
+C<supply>, C<iterator>, and C<worker> tags. The C<id> tag is used for Perl
+code.
 
 =over 4
 
-=item * A C<worker> attribute is used when actual "work" is going to
+=item * A C<worker> class is used when actual "work" is going to
 be done on the HTML file. This work is usually simple such as
 C<_text>, which sets the content aspect of the C<HTML::Element> to
 some text.  The others are listed in the manpage for
 C<HTML::Stitchery>.
 
-=item * A C<supply> attribute is called for side-effect. It creates a
+=item * A C<supply> class is called for side-effect. It creates a
 store of data for use by C<iterator> and C<worker> tags. Note that
 this creation may be actual or via a Perl C<tie>. C<HTML::Seamstress>
 automatically stores the results of C<supply> attribute evaluation in
 the page object under C<$s->{supply}> for later reference.
 
-=item * An C<iterator> attribute is used to pull records from a
+=item * An C<iterator> class is used to pull records from a
 C<supply> store previously created. C<HTML::Seamstress>
 automatically stores the results of C<iterator> attribute evaluation in
 the page object under C<$s->{iterator}> for later reference.
@@ -531,7 +533,9 @@ sound good and orthogonal, doesn't it? :)
 
 =item * C<Apache::Seamstress> is a derived class of
 C<HTML::Seamstress>, C<HTML::Stitchery>, C<CGI.pm>, and
-C<Apache::Request>. And it isn't written yet either. Sigh.
+C<Apache::Request>. And it isn't written yet either. Sigh. I don't think it 
+should be actually. A better way to seamless support both CGI and mod_perl
+is via C<Apache::Registry>
 
 
 =head1 Sample usage of HTML::Seamstress
@@ -562,8 +566,8 @@ say the flavors available on an ice cream shop's web site.
 The HTML would look like this:
 
     <SELECT NAME="Flavors" SUPPLY="$s->query_flavors">
-      <SPAN ITERATOR="$s->{supply}->next_flavor">
-        <OPTION WORKER="$s->_text($s->{iterator}->{flavor}" VALUE="0">
+      <SPAN CLASS=ITERATOR id="$s->{supply}->next_flavor">
+        <OPTION CLASS=WORKER id="$s->_text($s->{iterator}->{flavor}" VALUE="0">
              Tooty Fruity
         </OPTION>
       </SPAN>
@@ -637,7 +641,7 @@ and also tells it to stop looping:
 
 
 The code also disconnects from the database.
-(However, if C<Apache::DBI> was specified,
+(However, if C<Apache::DBI> was specified, and we are running mod_perl, then
 the C<disconnect()> becomes a no-op
 and the connection remains persistent.)
 
@@ -653,9 +657,86 @@ now containing the dynamically generated content:
 
 
 
+=head1 Closely related software products
+
+=head2 HTML::Template
+
+I consider this package to be to be HTML::Template's little brother. 
+HTML::Template is more mature than this and also has excellent 
+and flexible caching technology built in. Both modules believe that 
+very little logic should exist in HTML files. 
+
+So why continue with it if the packages are similar in philosophy and 
+HTML::Template is well designed and debugged? For me, the answer is manyfold:
+
+=over 4
+
+=item * HTML::Template is already showing signs that it's restrictive
+variable-only approach is somewhat weak
+
+Note the recent creation of HTML::Template::Expr. And note that you are
+moving into "3rd technology" (ie. something other than pure Perl and pure 
+HTML) real with this and you must learn it's new rules and exceptions.
+
+In fact, HTML::Template itself requires you to learn a number of 
+pseudo-HTML operators and then learn how to convert pure model code to
+a hashref for use by them.
+
+With Seamstress, if you know Perl and simply add CLASS and ID tags
+in the HTML tags where you want dynamic expansion you are finished. 
+
+=item * Because the templating instructions are within the HTML tags themselves
+the page will always be cleaner than an HTML::Template page
+
+The comparative example below will show this.
+
+=item * HTML::Seamstress can compile its templated documents into pure Perl
+
+This is useful for fast execution in CGI or mod_perl.
+
+=back
+
+Let's write a sample piece
+of code in both HTML::Template and HTML::Seamstress.
 
 
-=head1 How this software differs from Paul J. Lucas' HTML_Tree 
+ <HTML>
+  <HEAD><TITLE>Test Template</TITLE>
+  <BODY>
+  My Home Directory is <TMPL_VAR NAME=HOME>
+  <P>
+  My Path is set to <TMPL_VAR NAME=PATH>
+  </BODY>
+  </HTML>
+
+ <HTML>
+  <HEAD><TITLE>Test Template</TITLE>
+  <BODY>
+    My Home Directory is <SPAN CLASS=worker id="$s->_text($ENV{HOME}")> </SPAN>
+  <P>
+    My Path is set to <SPAN CLASS=worker id="$s->_text($ENV{PATH}")> </SPAN>
+  </BODY>
+  </HTML>
+
+Hmm, the HTML::Template code is cleaner. Let's try something harder. I have
+to win this argument. :-)
+
+ <TMPL_LOOP NAME="THIS_LOOP">
+  Word: <TMPL_VAR NAME="WORD"><BR>
+  Number: <TMPL_VAR NAME="NUMBER"><P>
+   </TMPL_LOOP>
+
+ <span class=supply id="$s->{this_loop}">
+    <span class=iterator id="$s->{supply}->Next"> # next via Set::Array method
+     Word: <br class=worker id="$s->_text($s->{iterator}{word})"></br>
+     Numb: <br class=worker id="$s->_text($s->{iterator}{number})"></br>
+    </span>
+ </spna>
+
+
+
+
+=head2 How this software differs from Paul J. Lucas' HTML_Tree 
 
 In concept, Seamstress and Lucas' HTML_Tree (call it ltree) are the
 same, with Seamstress being developed after usage of ltree. However,
@@ -687,7 +768,7 @@ called C<%function_map>:
 and the C<class_map> attribute of your required constructor in your
 required .pm file.
 
-C<HTML::Seamstress> simply relies of Perl object-oriented single
+C<HTML::Seamstress> simply relies on Perl object-oriented single
 dispatch. But it could do multiple-dispatch as well.
 
 =item * each object method had to do its own argument splitting in
@@ -720,7 +801,15 @@ T. M. Brannon <tbone@cpan.org>
 =over 4
 
 =item * Paul J. Lucas' HTML Tree distribution
+
 (http://homepage.mac.com/pauljlucas/software/html_tree) 
+
+=item * XMLC
+
+This is a Java framework with the exact same HTML pages. It creates
+DOM object files and works on HTML, XHTML and XML
+
+  http://xmlc.enhydra.org/
 
 
 =back

@@ -1,0 +1,3 @@
+perl interp.pl > interp.html
+html_tidy interp.html > interp.tidy
+

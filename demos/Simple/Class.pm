@@ -1,4 +1,4 @@
-package simple;
+package Simple::Class;
 
 use base qw(HTML::Stitchery);
 
@@ -11,8 +11,6 @@ sub new {
     my $this = shift;
     bless {}, ref($this) || $this;
 }
-
-
 
 sub load_data {
     my @data;
@@ -27,5 +25,6 @@ sub load_data {
 
     return \@data;
 }
+
 
 1;

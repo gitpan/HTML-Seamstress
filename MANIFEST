@@ -2,11 +2,8 @@ Changes
 Makefile.PL
 MANIFEST
 Seamstress.pm
-t/fake.t
-t/simple.html
-t/simple.pm
-t/simple.pl
-t/simple-compile/pipeline
-t/simple-compile/simple.html
-t/simple-compile/simple.pm
-
+demos/build-compile
+demos/build-interp
+demos/Simple/Class.pm
+demos/compile.pl
+demos/interp.pl
