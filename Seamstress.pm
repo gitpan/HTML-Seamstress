@@ -20,7 +20,7 @@ use warnings;
 
 # version
 
-our $VERSION = sprintf '%s', q$Revision: 1.8 $ =~ /\S+\s+(\S+)\s+/;
+our $VERSION = sprintf '%s', q$Revision: 1.9 $ =~ /\S+\s+(\S+)\s+/;
 
 
 # code
@@ -56,7 +56,7 @@ sub make_page_obj {
 #	warn "REQUIRE: $page";
 
 
-	eval "require $page";
+	eval "require $page" if $page;
 	croak $@ if ($@);
 
 	$page_object = $page->new;
@@ -123,7 +123,7 @@ sub compile {
     use Cwd;
     my $dir = getcwd;
     print "use lib '$dir';\n";
-    print "use $config{using};\n";
+    print "use $config{using};\n" if $config{using};
     print qq{ my \$s = $config{using}->new ; } ;
     print 'my $tree = ';
 
@@ -696,12 +696,12 @@ HTML::Template is well designed and debugged? For me, the answer is manyfold:
 
 =over 4
 
-=item * HTML::Template is already showing signs that it's restrictive
+=item * HTML::Template is already showing signs that its restrictive
 variable-only approach is somewhat weak
 
 Note the recent creation of HTML::Template::Expr. And note that you are
 moving into "3rd technology" (ie. something other than pure Perl and pure 
-HTML) real with this and you must learn it's new rules and exceptions.
+HTML) realm with this and you must learn it's new rules and exceptions.
 
 In fact, HTML::Template itself requires you to learn a number of 
 pseudo-HTML operators and then learn how to convert pure model code to
