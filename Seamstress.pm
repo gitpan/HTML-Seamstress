@@ -22,7 +22,8 @@ use warnings;
 
 # version
 
-our $VERSION = '0.02';
+our $VERSION = sprintf '%s', q$Revision: 1.4 $ =~ /\S+\s+(\S+)\s+/;
+
 
 # code
 
@@ -474,7 +475,8 @@ the controller, making calls to Perl methods to retrieve model data
 for inclusion in the view. 
 
 In C<HTML::Seamstress> the model classes are completely view and
-controller independant, and are thus use-able outside of HTML.
+controller independant, and are thus use-able outside of HTML and more
+importantly, unit-testable outside of Perl.
 
 Seamstress knows what Perl methods to call and when by the looking up
 specific attributes within a tag that are special to it. The attributes are
@@ -484,7 +486,7 @@ C<supply>, C<iterator>, and C<worker> tags.
 
 =item * A C<worker> attribute is used when actual "work" is going to
 be done on the HTML file. This work is usually simple such as
-C<_text>, which sets the contect aspect of the C<HTML::Element> to
+C<_text>, which sets the content aspect of the C<HTML::Element> to
 some text.  The others are listed in the manpage for
 C<HTML::Stitchery>.
 
@@ -666,7 +668,9 @@ distribution. SBURKE's HTML parser is written in C and Paul Lucas'
 HTML parser is written in C++, so they are both fast.
 
 =item * in ltree, a .pm file must be associated with your HTML file 
-and you must write your own constructor. Both of these steps are
+and you must write your own constructor. 
+
+Both of these steps are
 optional with C<HTML::Seamstress>. You can always inherit the
 C<HTML::Stitchery> constructor if you want and if you have an HTML
 file that you don't want C<HTML::Seamstress> dhtml in, then you don't
@@ -699,7 +703,9 @@ opposed to a pseudo-HTML-like language, it does not have to do
 argument splitting but lets Perl handle that.
 
 =item * ltree does not support traversal of infinite levels of
-reference nesting. Instead it has a simple text() method which returns
+reference nesting. 
+
+Instead it has a simple text() method which returns
 the key in the hash of its arguments. Because C<HTML::Seamstress> uses
 Perl, arbitrary degrees of nesting of hashes, arrays, as well as
 method overloads could be supported. 
