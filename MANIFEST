@@ -1,0 +1,10 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+Seamstress.pm
+test.pl
+t/pp.pl
+t/simple.html
+t/simple.pm
+t/simple.pl
