@@ -11,7 +11,6 @@ use Symbol;
 
 use HTML::Tree;
 use Cache::MemoryCache;
-use Data::DRef qw(:dref_access);
 
 # pragmas
 
@@ -21,7 +20,7 @@ use warnings;
 
 # version
 
-our $VERSION = sprintf '%s', q$Revision: 1.5 $ =~ /\S+\s+(\S+)\s+/;
+our $VERSION = sprintf '%s', q$Revision: 1.7 $ =~ /\S+\s+(\S+)\s+/;
 
 
 # code
@@ -54,7 +53,7 @@ sub make_page_obj {
 #	$page_object = HTML::Stitchery->new(%$config);
 	die "NO PAGE... default implementation needed";
     } else {
-	warn "REQUIRE: $page";
+#	warn "REQUIRE: $page";
 
 
 	eval "require $page";
@@ -109,7 +108,7 @@ sub compile {
 
     $self->{tree}     = $tree;
 
-    warn 'making page obj';
+#    warn 'making page obj';
 
     $self->{page_object} = $self->make_page_obj(\%config);
 
@@ -137,8 +136,8 @@ sub compile {
 
     map { 
 	if ($_->{addr} eq '0.1.1.1.0') {
-	    warn "** 0.1.1.1.0 code blessing: ", ref($_->{code});
-	    warn "** code -> ", $_->{code}->() ;
+#	    warn "** 0.1.1.1.0 code blessing: ", ref($_->{code});
+#	    warn "** code -> ", $_->{code}->() ;
 	}
 	print $_->{code}->() ;
     } @{$self->{page_object}{code}} ;
@@ -190,20 +189,6 @@ sub visit {
 #	    warn sprintf "%s CLOSE rv: %d", $node->endtag, $rv;
 	$self->visit($node) if $rv;
     } 
-}
-
-sub proc_args {
-    my $this = shift;
-    my @ret;
-#    warn "proc_args IN: @_";
-#  warn sprintf "this cgi: %s", Data::Dumper::Dumper($this->{cgi});
-    for my $dref_or_scalar (@_) {
-	my $r = get_value_for_dref($this, $dref_or_scalar);
-	push @ret, $r and next if $r;
-	push @ret, $dref_or_scalar;
-    }
-#    warn "proc_args OUT: @ret";
-    @ret;
 }
 
 sub proc_supply {
@@ -259,7 +244,7 @@ sub visitor {
 	return 1;
     }
 
-    warn sprintf "SUPPLY_ATTR (%s): $supply_attr", $node->attr('class');
+#    warn sprintf "SUPPLY_ATTR (%s): $supply_attr", $node->attr('class');
     if ($node->attr('class') eq $supply_attr) {
 	my $supply = $node->attr('id');
 	my $tmp = proc_supply($supply, $object, $node, $is_end_tag);
@@ -393,11 +378,13 @@ HTML::Seamstress - dynamic HTML generation via pure HTML and pure Perl.
   # HTML
   <html>
 
+  # supply element automatically binds $s->{supply}
   <table class=supply id="$s->_aref($s->load_data)">
 
     <tr>  <th>name<th>age<th>weight</th> </tr>
 
-    <tr class=iterator id="$s->{supply}->Next">
+    # iterator element automatically binds $s->{iterator}
+    <tr class=iterator id="$s->{supply}->shift">
 
         <td class=worker id="$s->_text($s->{iterator}->{name})">    </td>
         <td class=worker id="$s->_text($s->{iterator}->{age})">     </td>
@@ -811,6 +798,11 @@ DOM object files and works on HTML, XHTML and XML
 
   http://xmlc.enhydra.org/
 
+=item * HTML Tidy
+
+The demo programs tidy up their HTML output via this program:
+
+ http://www.w3.org/People/Raggett/tidy/
 
 =back
 

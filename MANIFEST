@@ -4,6 +4,7 @@ MANIFEST
 Seamstress.pm
 demos/build-compile
 demos/build-interp
+demos/simple.html
 demos/Simple/Class.pm
 demos/compile.pl
 demos/interp.pl

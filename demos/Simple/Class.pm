@@ -1,6 +1,7 @@
 package Simple::Class;
 
 use base qw(HTML::Stitchery);
+use Set::Array;
 
 my @name   = qw(bob bill brian babette bobo bix);
 my @age    = qw(99  12   44    52      12   43);
@@ -23,7 +24,7 @@ sub load_data {
 	    }
     }
 
-    return \@data;
+  Set::Array->new(@data);
 }
 
 
