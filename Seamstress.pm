@@ -20,7 +20,7 @@ use warnings;
 
 # version
 
-our $VERSION = sprintf '%s', q$Revision: 1.11 $ =~ /\S+\s+(\S+)\s+/;
+our $VERSION = sprintf '%s', q$Revision: 1.12 $ =~ /\S+\s+(\S+)\s+/;
 
 
 # code
@@ -45,17 +45,25 @@ sub temp_package {
 # for an html page, let's create the perl object associated with it:
 
 sub make_page_obj {
-    my ($self,$config) = @_;
-    my $page = $config->{using};
-    my $page_object;
+  my ($self,$config) = @_;
+  my $page = $config->{using};
+  my $page_object = {};
     
-    if ($page) {
-	eval "require $page";
-	croak $@ if ($@);
-	$page_object = $page->new;
-    }
+  if ($page) {
+    eval "require $page";
+    croak $@ if ($@);
+    $page_object = $page->new;
+  }
 
-    $page_object;
+
+  if ($config->{injecting}) {
+    warn "CONFIG_INJECTING";
+    $page_object->{$_} = $config->{injecting}->{$_}
+      for (keys %{$config->{injecting}}) ;
+  }
+  warn "INJECTED", Dumper($page_object);
+
+  $page_object;
 }
 
 
@@ -88,6 +96,8 @@ sub weave {
     $self->{visitor}  = \&HTML::Seamstress::visitor;
 
     $self->visit($tree->root);
+
+    1;
 }
 
 sub compile {
@@ -707,7 +717,11 @@ HTML) realm with this and you must learn it's new rules and exceptions.
 
 In fact, HTML::Template itself requires you to learn a number of 
 pseudo-HTML operators and then learn how to convert pure model code to
-a hashref for use by them.
+a hashref for use by them. 
+
+I personally tire of learning more and more non-Perl syntax which makes
+simple things easy and hard things acts of contortion. I'd rather stick
+with as much pure Perl and as little extra-perl-invented conventions.
 
 With Seamstress, if you know Perl and simply add CLASS and ID tags
 in the HTML tags where you want dynamic expansion you are finished. 
@@ -846,6 +860,13 @@ The demo programs tidy up their HTML output via this program:
 
 =back
 
+=head1 TO DO
+
+=over 4
+
+=item * support injection for compilation
+
+=back
 
 
 =cut
