@@ -20,7 +20,7 @@ use warnings;
 
 # version
 
-our $VERSION = sprintf '%s', q$Revision: 1.7 $ =~ /\S+\s+(\S+)\s+/;
+our $VERSION = sprintf '%s', q$Revision: 1.8 $ =~ /\S+\s+(\S+)\s+/;
 
 
 # code
@@ -396,9 +396,13 @@ HTML::Seamstress - dynamic HTML generation via pure HTML and pure Perl.
 
  </html>
 
-  # Perl
+  # Perl call to generate HTML
   use HTML::Seamstress;
   HTML::Seamstress->weave(html => 'simple.html', using => 'Simple::Class');
+
+  # Perl call to generate a Perl program, which when run, generates HTML
+  use HTML::Seamstress;
+  HTML::Seamstress->compile(html => 'simple.html', using => 'Simple::Class');
 
   # Simple/Class.pm
  package simple;
@@ -437,7 +441,6 @@ HTML::Seamstress - dynamic HTML generation via pure HTML and pure Perl.
 =head2 Disclaimer One - THIS IS ALPHA SOFTWARE. USE AT YOUR OWN RISK
 
 =head2 Disclaimer Two - This package is (too?) similar to HTML::Template
-
 
 =head2 On to the description
 
@@ -640,9 +643,44 @@ now containing the dynamically generated content:
     }
 
 
-1;
+ 1;
 
+=head1 Things you may be wondering
 
+=head2 Where is the if-then-else tag?
+
+There is no if-then-else tag. That functionality occurs implicitly. When
+a portion of the HTML document is bracketed by a tag whose C<class> is
+C<supply> and that tag's C<id> when evaluated returns a Perl false value,
+then that tag, and the entire HTML subtree under it are not placed in 
+the output document.
+
+This is what an if statement does
+
+Also note, some cases of if-then-else are better handled by doing 
+if-then-else in your CGI program and then issuing a redirect to one
+of several appropriate pages instead of spaghetti'ing the hell out of
+one document with a maelstrom of if-then-elses. 
+
+=head2 Where is the loop tag?
+
+Again there isn't one. The combination of C<supply> and C<iterator> serves
+as a basic general purpose loop. In fact, if you look at the compiled 
+code, you will see something like this:
+ {
+   last unless $page->{iterator}->()
+   ...
+
+   redo;
+ } 
+
+which is the most general Perl loop available.
+
+=head2 Where is the include file tag?
+
+There isn't one. I insist of using HTML reuse via HTML design programs.
+Seamstress believes that a quality HTML designer can do quality things
+with a quality program and library element re-use is one of those things.
 
 =head1 Closely related software products
 

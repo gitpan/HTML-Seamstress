@@ -8,3 +8,4 @@ demos/simple.html
 demos/Simple/Class.pm
 demos/compile.pl
 demos/interp.pl
+test.pl
