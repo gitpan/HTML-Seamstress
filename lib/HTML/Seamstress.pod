@@ -19,7 +19,7 @@ HTML::Seamstress - Perl extension for HTML generation via tree rewriting
 
 =head2 Perl finds nodes in the tree and rewrites them:
 
-  use HTML::Seamstress; # HTML::Seamstress isa HTML::TreeBuilder :)
+  use HTML::Seamstress; # HTML::Seamstress HTML::TreeBuilder :)
   my $tree = HTML::Seamstress->new_from_file($html_file);
   $tree->name_handler('bob');
   $tree->date_handler(`date`);
@@ -61,7 +61,7 @@ The L</SYNOPSIS> gave an example of text substitution. From a
 tree-writing perspective, text substitution involves an in-place
 change to the content of a node of an HTML tree.
 
-=head2 (Conditional Processing aka if/unless/elsif/else) == Node Deletion 
+=head2 Conditional Processing (aka if/unless/elsif/else) == Node Deletion 
 
 In tree rewriting terms, an C<if> directive is used to decide whether a 
 particular node of the HTML tree is preserved or deleted.
@@ -115,7 +115,7 @@ Here is the HTML and Perl for Seamstress:
  }
 
 
-=head2 Looping (e.g. able Unrolling) == Child Replication
+=head2 Looping (e.g. Table Unrolling) == Child Replication
 
 =head3 Sample Model
 
@@ -181,18 +181,132 @@ Here is the HTML and Perl for Seamstress:
 
 =head4 Perl
 
-Program fragment delivered error ``Can't find string terminator "'" anywhere before EOF at lib/HTML/Seamstress.tt line 137, <F> line 47.''
+ require 'simple-class.pl';
+ use HTML::Seamstress;
+ 
+ # load the view
+ my $seamstress = HTML::Seamstress->new_from_file('simple.html');
+ 
+ # load the model
+ my $o = Simple::Class->new;
+ my $data = $o->load_data;
+ 
+ # find the <table> and <tr> 
+ my $table_node = $seamstress->look_down('id', 'load_data');
+ my $iter_node  = $table_node->look_down('id', 'iterate');
+ my $table_parent = $table_node->parent;
+ 
+ 
+ # drop the sample <table> and <tr> from the HTML
+ # only add them in if there is data in the model
+ # this is achieved via the $add_table flag
+ 
+ $table_node->detach;
+ $iter_node->detach;
+ my $add_table;
+ 
+ # Get a row of model data
+ while (my $row = shift @$data) {
+ 
+   # We got row data. Set the flag indicating ok to hook the table into the HTML
+   ++$add_table;
+ 
+   # clone the sample <tr>
+   my $new_iter_node = $iter_node->clone;
+ 
+   # find the tags labeled name age and weight and 
+   # set their content to the row data
+   $new_iter_node->content_handler($_ => $row->{$_}) 
+     for qw(name age weight);
+ 
+   $table_node->push_content($new_iter_node);
+ 
+ }
+ 
+ # reattach the table to the HTML tree if we loaded data into some table rows
+ 
+ $table_parent->push_content($table_node) if $add_table;
+ 
+ print $seamstress->as_HTML;
+ 
+
 
 =head3 Seamstress API call to Unroll a Table
 
-Program fragment delivered error ``couldnt open file : No such file or directory at ./tt.pl line 18, <F> line 47.''
+ require 'simple-class.pl';
+ use HTML::Seamstress;
+ 
+ # load the view
+ my $seamstress = HTML::Seamstress->new_from_file('simple.html');
+ # load the model
+ my $o = Simple::Class->new;
+ 
+ $seamstress->table
+   (
+    # tell seamstress where to find the table, via the method call
+    # ->look_down('id', $gi_table). Seamstress detaches the table from the
+    # HTML tree automatically if no table rows can be built
+ 
+      gi_table    => 'load_data',
+ 
+    # tell seamstress where to find the tr. This is a bit useless as
+    # the <tr> usually can be found as the first child of the parent
+ 
+      gi_tr       => 'iterate',
+      
+    # the model data to be pushed into the table
+ 
+      table_data  => $o->load_data,
+ 
+    # the way to take the model data and obtain one row
+    # if the table data were a hashref, we would do:
+    # my $key = (keys %$data)[0]; my $val = $data->{$key}; delete $data->{$key}
+ 
+      tr_data     => sub { my ($self, $data) = @_;
+ 			  shift(@{$data}) ;
+ 			},
+ 
+    # the way to take a row of data and fill the <td> tags
+ 
+      td_data     => sub { my ($tr_node, $tr_data) = @_;
+ 			  $tr_node->content_handler($_ => $tr_data->{$_})
+ 			    for qw(name age weight) }
+ 
+   );
+ 
+ 
+ print $seamstress->as_HTML;
+
 
 =head3 Looping over Multiple Sample Rows
 
 * HTML
 
-Program fragment delivered error ``syntax error at lib/HTML/Seamstress.tt line 147, near "#line 147 lib/HTML/Seamstress.tt
-slide_code 'loop/simple-alt.html'"''
+ <html>
+ 
+   <table id="load_data" CELLPADDING=8 BORDER=2>
+ 
+     <tr>  <th>name</th><th>age</th><th>weight</th> </tr>
+ 
+     <tr id="iterate1" BGCOLOR="white" >
+ 
+         <td id="name">   NATURE BOY RIC FLAIR  </td>
+         <td id="age">    35                    </td>
+         <td id="weight"> 220                   </td>
+ 
+     </tr>
+     <tr id="iterate2" BGCOLOR="#CCCC99">
+ 
+         <td id="name">   NATURE BOY RIC FLAIR  </td>
+         <td id="age">    35                    </td>
+         <td id="weight"> 220                   </td>
+ 
+     </tr>
+ 
+   </table>
+ 
+ </html>
+
 
 * Only one change to last API call. 
 
@@ -206,15 +320,32 @@ becomes this:
 
 =head3 Whither a Table with No Rows
 
-Use Conditional Processing before Child Replication. In human terms, 
-    if (no data) { pop in a no data table }
-    else { pop in the data table }
+Often when a table has no rows, we want to display a message
+indicating this to the view. Use conditional processing to decide what
+to display:
 
 	<span id=no_data>
 		<table><tr><td>No Data is Good Data</td></tr></table>
 	</span>
 	<span id=load_data>
-Program fragment delivered error ``couldnt open file : No such file or directory at ./tt.pl line 18, <F> line 47.''
+ <html>
+ 
+   <table id="load_data">
+ 
+     <tr>  <th>name</th><th>age</th><th>weight</th> </tr>
+ 
+     <tr id="iterate">
+ 
+         <td id="name">   NATURE BOY RIC FLAIR  </td>
+         <td id="age">    35                    </td>
+         <td id="weight"> 220                   </td>
+ 
+     </tr>
+ 
+   </table>
+ 
+ </html>
+
 	</span>
 
 
