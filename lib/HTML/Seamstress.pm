@@ -4,6 +4,7 @@ package HTML::Seamstress;
 use strict;
 use warnings;
 
+use Carp qw(confess);
 use Data::Dumper;
 use File::Spec;
 use Scalar::Listify;
@@ -33,7 +34,7 @@ our @EXPORT = qw(
 
 );
 
-our $VERSION = '2.9';
+our $VERSION = '2.91';
 
 our $ID = 'id';
 
@@ -140,6 +141,29 @@ sub HTML::Element::content_handler {
   my ($tree, $id_name, $content) = @_;
 
   $tree->set_child_content($ID => $id_name, $content);
+
+}
+
+sub HTML::Element::highlander {
+  my ($tree, $local_root_id, $aref, @arg) = @_;
+
+  ref $aref eq 'ARRAY' or confess 
+    "must supply array reference";
+    
+  my @aref = @$aref;
+  @aref % 2 == 0 or confess 
+    "supplied array ref must have an even number of entries";
+
+  my $survivor;
+  while (my ($id, $test) = splice @aref, 0, 2) {
+    if ($test->(@arg)) {
+      $survivor = $id;
+      last;
+    }
+  }
+
+  my $node = $tree->look_down(id => $survivor);
+  $tree->set_child_content($local_root_id, $node);
 
 }
 

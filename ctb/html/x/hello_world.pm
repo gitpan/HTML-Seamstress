@@ -1,4 +1,4 @@
-package html::hello_world;
+package x::hello_world;
 use strict;
 use warnings;
 use base qw(HTML::Seamstress);
@@ -40,7 +40,7 @@ sub date {
 
 
 
-# the html file /home/terry/perl/hax/HTML-Seamstress-2.6/ctb/html/hello_world.html
+# the html file /home/terry/perl/hax/HTML-Seamstress-2.6/ctb/html/x/hello_world.html
 sub tree {
 # serial
 $tree = bless( {
@@ -119,13 +119,13 @@ $tree = bless( {
                  '_implicit_body_p_tag' => 0,
                  '_warn' => 0,
                  '_p_strict' => 0,
-                 '_hparser_xs_state' => \138217656,
+                 '_hparser_xs_state' => \138300880,
                  '_element_count' => 3,
                  '_store_declarations' => 0,
                  '_tag' => 'html',
                  '_store_pis' => 0,
                  '_element_class' => 'HTML::Element'
-               }, 'html::hello_world' );
+               }, 'x::hello_world' );
 $tree->{'_head'}{'_parent'} = $tree;
 $tree->{'_head'}{'_content'}[0]{'_parent'} = $tree->{'_head'};
 $tree->{'_content'}[0] = $tree->{'_head'};

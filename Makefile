@@ -6,12 +6,12 @@
 #
 #       ANY CHANGES MADE HERE WILL BE LOST!
 #
-#   MakeMaker ARGV: (q[PREFIX=/home/terry/perl])
+#   MakeMaker ARGV: ()
 #
 #   MakeMaker Parameters:
 
 #     NAME => q[HTML::Seamstress]
-#     PREREQ_PM => { Scalar::Listify=>q[0.02], HTML::Tree=>q[3.18], Tie::Cycle=>q[1.06] }
+#     PREREQ_PM => { Pod::Usage=>q[1.16], Scalar::Listify=>q[0.02], AppConfig::Std=>q[1.07], HTML::Tree=>q[3.18], Tie::Cycle=>q[1.06] }
 #     VERSION_FROM => q[lib/HTML/Seamstress.pm]
 
 # --- MakeMaker post_initialize section:
@@ -51,11 +51,11 @@ AR_STATIC_ARGS = cr
 DIRFILESEP = /
 NAME = HTML::Seamstress
 NAME_SYM = HTML_Seamstress
-VERSION = 2.9
+VERSION = 2.91
 VERSION_MACRO = VERSION
-VERSION_SYM = 2_9
+VERSION_SYM = 2_91
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 2.9
+XS_VERSION = 2.91
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -68,9 +68,9 @@ MAN1EXT = 1p
 MAN3EXT = 3pm
 INSTALLDIRS = site
 DESTDIR = 
-PREFIX = /home/terry/perl
+PREFIX = /usr
 PERLPREFIX = $(PREFIX)
-SITEPREFIX = $(PREFIX)
+SITEPREFIX = $(PREFIX)/local
 VENDORPREFIX = $(PREFIX)
 INSTALLPRIVLIB = $(PERLPREFIX)/share/perl/5.8
 DESTINSTALLPRIVLIB = $(DESTDIR)$(INSTALLPRIVLIB)
@@ -246,7 +246,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = HTML-Seamstress
-DISTVNAME = HTML-Seamstress-2.9
+DISTVNAME = HTML-Seamstress-2.91
 
 
 # --- MakeMaker macro section:
@@ -442,11 +442,13 @@ metafile :
 	$(NOECHO) $(ECHO) '# http://module-build.sourceforge.net/META-spec.html' > META.yml
 	$(NOECHO) $(ECHO) '#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#' >> META.yml
 	$(NOECHO) $(ECHO) 'name:         HTML-Seamstress' >> META.yml
-	$(NOECHO) $(ECHO) 'version:      2.9' >> META.yml
+	$(NOECHO) $(ECHO) 'version:      2.91' >> META.yml
 	$(NOECHO) $(ECHO) 'version_from: lib/HTML/Seamstress.pm' >> META.yml
 	$(NOECHO) $(ECHO) 'installdirs:  site' >> META.yml
 	$(NOECHO) $(ECHO) 'requires:' >> META.yml
+	$(NOECHO) $(ECHO) '    AppConfig::Std:                1.07' >> META.yml
 	$(NOECHO) $(ECHO) '    HTML::Tree:                    3.18' >> META.yml
+	$(NOECHO) $(ECHO) '    Pod::Usage:                    1.16' >> META.yml
 	$(NOECHO) $(ECHO) '    Scalar::Listify:               0.02' >> META.yml
 	$(NOECHO) $(ECHO) '    Tie::Cycle:                    1.06' >> META.yml
 	$(NOECHO) $(ECHO) '' >> META.yml
@@ -640,7 +642,7 @@ $(FIRST_MAKEFILE) : Makefile.PL $(CONFIGDEP)
 	$(NOECHO) $(RM_F) $(MAKEFILE_OLD)
 	$(NOECHO) $(MV)   $(FIRST_MAKEFILE) $(MAKEFILE_OLD)
 	-$(MAKE) -f $(MAKEFILE_OLD) clean $(DEV_NULL) || $(NOOP)
-	$(PERLRUN) Makefile.PL "PREFIX=/home/terry/perl"
+	$(PERLRUN) Makefile.PL 
 	$(NOECHO) $(ECHO) "==> Your Makefile has been rebuilt. <=="
 	$(NOECHO) $(ECHO) "==> Please rerun the make command.  <=="
 	false
@@ -661,8 +663,7 @@ $(MAKE_APERL_FILE) : $(FIRST_MAKEFILE)
 	$(NOECHO) $(PERLRUNINST) \
 		Makefile.PL DIR= \
 		MAKEFILE=$(MAKE_APERL_FILE) LINKTYPE=static \
-		MAKEAPERL=1 NORECURS=1 CCCDLFLAGS= \
-		PREFIX=/home/terry/perl
+		MAKEAPERL=1 NORECURS=1 CCCDLFLAGS=
 
 
 # --- MakeMaker test section:
@@ -692,12 +693,14 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd:
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="2,9,0,0">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="2,91,0,0">' > $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <TITLE>$(DISTNAME)</TITLE>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT></ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR></AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <DEPENDENCY NAME="AppConfig-Std" VERSION="1,07,0,0" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <DEPENDENCY NAME="HTML-Tree" VERSION="3,18,0,0" />' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <DEPENDENCY NAME="Pod-Usage" VERSION="1,16,0,0" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <DEPENDENCY NAME="Scalar-Listify" VERSION="0,02,0,0" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <DEPENDENCY NAME="Tie-Cycle" VERSION="1,06,0,0" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <OS NAME="$(OSNAME)" />' >> $(DISTNAME).ppd

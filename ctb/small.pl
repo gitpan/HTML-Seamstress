@@ -1,67 +1,89 @@
+use strict;
+use warnings;
 use HTML::Seamstress;
 use File::Spec;
+use Data::Dumper;
 
-my $file = 'small.html';
+
+my $file = 'html/hello_world.html';
 my $abs  = File::Spec->rel2abs($file);
 my $tree = HTML::Seamstress->new_from_file($file);
+my $module_file = 'pkg/hello_world.pm';
+my $module_pkg  = 'html::hello_world';
 
-my @content = $tree->look_down(klass => 'content') ;
-
-warn "found " . @content . ' nodes ' ;
-
-our @scalar;
-our @kontent;
-
-map { 
-  my $id = $_->attr('id');
-  push @scalar, $id;
-  push @kontent, kontent($id);
-
-} @content;
-
-use Data::Dumper;
-$Data::Dumper::Purity = 1;
-
-open D, '>html/hello_world.pm' or die $!;
-
-our $pkg    = 'html::hello_world';
-our $serial = Data::Dumper->Dump([$tree], ['tree']);
-
-$serial =~ s/HTML::Seamstress/$pkg/;
-
-our $look_down =  join ";\n",
-  map { sprintf 'my $%s = $tree->look_down(id => q/%s/)', $_, $_ } @scalar;
-
-our $kontent = join "\n", @kontent;
-
-print D pkg();
+my ($content_subs, $look_downs) = find_content_subs();
+my $serial = serialize_html_parse($tree);
 
 
-sub kontent { sprintf <<'EOK', ($_[0]) x 4 }
+save_module();
+exit;
+
+# subs ------------------------------------------------------------------ 
+
+sub save_module {
+  open D, ">$module_file" or die $!;
+  print D pkg();
+}
+
+
+sub serialize_html_parse {
+  my $tree = shift;
+  $Data::Dumper::Purity = 1;
+  our $serial = Data::Dumper->Dump([$tree], ['tree']);
+  $serial =~ s/HTML::Seamstress/$module_pkg/;
+  $serial;
+}
+
+
+sub find_content_subs {
+  my @content_sub;
+  my @klass_content = $tree->look_down(klass => 'content') ;
+  warn "found " . @klass_content . ' nodes ' ;
+
+  my @scalar = map { 
+    my $id = $_->attr('id');
+    push @content_sub, make_content_sub($id);
+    $id
+  } @klass_content;
+
+  my $content_subs = join "\n", @content_sub;
+
+  my $look_downs = join ";\n",
+    map { 
+      sprintf 'my $%s = $tree->look_down(id => q/%s/)', $_, $_ 
+    } @scalar;
+  
+
+  ($content_subs, $look_downs)
+}
+  
+sub make_content_sub { sprintf <<'EOK', ($_[0]) x 4 }
 
 sub %s {
    my $class = shift;
    my $content = shift;
    if (defined($content)) {
       $%s->content_handler(%s => $content);
+      return $tree
    } else {
-      $%s
+      return $%s
    }
-   $tree;
+
 }
-	
 
 EOK
   
 
-sub pkg { sprintf <<'EOPKG', $pkg, $look_down, $kontent, $abs, $serial }
+sub pkg { sprintf <<'EOPKG', $module_pkg, $look_downs, $content_subs, $abs, $serial }
 package %s;
-use base HTML::Seamstress;
+use strict;
+use warnings;
+use base qw(HTML::Seamstress);
 
 use vars qw($tree);
 tree();
 
-# look_down for klass tags
+# content_accessors;
 %s;
 
 # content subs
