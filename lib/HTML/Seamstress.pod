@@ -100,7 +100,8 @@ would allow for pure HTML to be dynamically "unrolled" without any
 foreign elements in the HTML itself. 
 
 This design goal can be met by the 3 most popular templating
-systems for Perl - L<HTML::Mason>, L<HTML::Template> and L<Template>. 
+systems for Perl - L<HTML::Mason>, L<HTML::Template> and L<Template>,
+but none of them enforce it by design.
 
 A second design goal for Seamstress was to have only two technologies,
 object-oriented Perl and HTML. Neither HTML::Template or Template meet
@@ -115,7 +116,16 @@ mini-languages are discussed here:
 
 L<http://perlmonks.org/?node_id=428053>
 
-
+So the above 3 modules can enforce the stated design goals but there
+are ways around these goals. 
+The only CPAN modules which enforce both design goals completely are
+L<XML::LibXML>, L<PeTaL> and this module. If you have time to generate
+high-quality XML and are comfortable with DOM then there is no problem
+with this module. If you prefer a Perlish and intuitive collection of
+methods, then the fact that Seamstress is built on top of
+L<HTML::TreeBuilder> will appeal to you. Finally, we come to
+L<PeTaL>. A nice module, but I don't enjoy learning mini-languages and
+mastery of PeTal entails learning TAL and MetaTAL.
 
 
 =head1 DESCRIPTION
@@ -239,6 +249,32 @@ and would be used like so:
  
  # ... etc
 
+=head3 A simple structure-modifying method, expand_replace()
+
+Let's say you have this HTML:
+
+     <div id="sidebar">
+
+	<div class="sideBlock" id=mpi>mc::picBar::index</div>
+
+	<div class="sideBlock" id=mnm>mc::navBox::makeLinks</div>
+
+	<div class="sideBlock" id=mg>mc::gutenBox</div>
+
+      </div>
+
+In this case, the content of each sideBlock is the name of a Perl
+Seamstress-style class. As you know, When the constructor for such a class is called an
+HTML::Element, $E,  will be returned for it's parsed content.
+
+In this case, we want the content of the div element to go from the
+being the class name to being the HTML::Element that that class
+constructs, in other words:
+
+
+and so to inline all 3 tags you would do the following;
+
+ $tree->look_down(id => $_)->expand_replace for qw(mpi mnm mg);
 
 =head1 SEE ALSO
 

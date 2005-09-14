@@ -15,7 +15,7 @@ use Tie::Cycle;
 use base qw/HTML::TreeBuilder HTML::Element/;
 
 
-our $VERSION = '2.91f';
+our $VERSION = '2.91g';
 
 our $ID = 'id';
 
@@ -44,6 +44,13 @@ sub new_from_file {
 }
 
 
+sub HTML::Element::expand_replace {
+    my $node = shift;
+    
+    my $seamstress_module = ($node->content_list)[0]  ;
+    $node->replace_content->($seamstress_module->new) ;
+
+}
 
 
 1;
