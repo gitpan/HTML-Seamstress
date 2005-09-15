@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         HTML-Seamstress
-version:      2.91g
+version:      2.91h
 version_from: lib/HTML/Seamstress.pm
 installdirs:  site
 requires:
