@@ -4,7 +4,7 @@ package HTML::Seamstress;
 use strict;
 use warnings;
 
-use Array::Dissect qw(:all);
+#use Array::Dissect qw(:all);
 use Carp qw(confess);
 use Data::Dumper;
 use File::Spec;
@@ -15,7 +15,7 @@ use Tie::Cycle;
 use base qw/HTML::TreeBuilder HTML::Element/;
 
 
-our $VERSION = '2.91h';
+our $VERSION = '2.92';
 
 our $ID = 'id';
 
