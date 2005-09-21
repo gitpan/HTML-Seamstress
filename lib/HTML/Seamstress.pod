@@ -116,6 +116,9 @@ mini-languages are discussed here:
 
 L<http://perlmonks.org/?node_id=428053>
 
+A striking example of their limitations is shown here:
+L<http://perlmonks.org/?node_id=493477>
+
 So the above 3 modules can enforce the stated design goals but there
 are ways around these goals. 
 The only CPAN modules which enforce both design goals completely are
@@ -126,6 +129,7 @@ methods, then the fact that Seamstress is built on top of
 L<HTML::TreeBuilder> will appeal to you. Finally, we come to
 L<PeTaL>. A nice module, but I don't enjoy learning mini-languages and
 mastery of PeTal entails learning TAL and MetaTAL.
+
 
 
 =head1 DESCRIPTION

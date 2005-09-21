@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use AppConfig::Std;
+use Carp qw(croak carp confess cluck);
 use Cwd;
 use HTML::Seamstress;
 use File::Basename;
@@ -19,40 +20,58 @@ my @scalars;
 
 my $file_regexp = qr/[.]html?/;
 
-my $file = initialize();
+my @file = initialize();
 
-_verbose("Input File: $file");
-my $abs  = File::Spec->rel2abs($file);
-my $tree = HTML::Seamstress->new_from_file($file) ;
-my ($name, $path, $suffix) = fileparse($abs, $file_regexp);
-my $docroot = calc_docroot($path);
-_verbose("Document Root: $docroot");
-my $module_file = "$path$name.pm";
-my $module_path = module_path($path);
-_debug('modpath is ' . $module_path);
-my $module_pkg  = "$module_path$name";
+my $CWD = cwd;
+
+for my $file (@file) {
+
+  chdir $CWD;
+
+  _verbose("Input File: $file");
+  _debug  ("cwd: " . cwd());
+
+  my $abs  = File::Spec->rel2abs($file);
+  my $tree = HTML::Seamstress->new_from_file($file) ;
+  my ($name, $path, $suffix) = fileparse($abs, $file_regexp);
+  _verbose("$name, $path, $suffix) = fileparse($abs, $file_regexp);");
+  my $docroot = calc_docroot($path);
+
+  _verbose("Document Root: $docroot");
+  my $module_file = "$path$name.pm";
+  my $module_path = module_path($path, $docroot);
+
+  _debug('modpath is ' . $module_path);
+  my $module_pkg  = "$module_path$name";
 
 
+  _verbose("Compiling\n\tfile: $file\n\tto module: $module_pkg\n\tin file $module_file\n\tin directory $path");
+  my ($content_subs, $content_look_downs) = find_content_subs($tree);
+  my ($highlander_subs, $highlander_look_downs) = find_highlander_klass($tree);
+  my ($iter_subs, $iter_look_downs) = find_iter_klass($tree);
+  my ($dual_iter_subs, $dual_iter_look_downs) = find_dual_iter_klass($tree);
 
-_verbose("Compiling $file to $module_pkg in $name.pm in directory\n\t$path");
+  #my $serial = serialize_html_parse($tree);
+  my $scalars = sprintf 'my (%s);', join ',', map { '$'.$_ } @scalars;
 
+  save_module($module_file,
+	      $tree, $module_pkg, $scalars, $abs, $content_look_downs, $highlander_look_downs, $iter_look_downs, 
+	      $dual_iter_look_downs, $content_subs, $highlander_subs, $iter_subs, $dual_iter_subs
+	     );
 
-my ($content_subs, $content_look_downs) = find_content_subs();
-my ($highlander_subs, $highlander_look_downs) = find_highlander_klass();
-my ($iter_subs, $iter_look_downs) = find_iter_klass();
-my ($dual_iter_subs, $dual_iter_look_downs) = find_dual_iter_klass();
+}
 
-#my $serial = serialize_html_parse($tree);
-my $scalars = sprintf 'my (%s);', join ',', map { '$'.$_ } @scalars;
-
-save_module();
 exit;
 
 # subs ------------------------------------------------------------------ 
 
 sub save_module {
+
+  my $module_file = shift or die 'must supply module file';
+
+  my ($tree, $module_pkg, $scalars, $abs, $content_look_downs, $highlander_look_downs, $iter_look_downs, $dual_iter_look_downs, $content_subs, $highlander_subs, $iter_subs, $dual_iter_subs  ) = @_;
   open D, ">$module_file" or die $!;
-  print D pkg();
+  print D pkg($tree, $module_pkg, $scalars, $abs, $content_look_downs, $highlander_look_downs, $iter_look_downs, $dual_iter_look_downs, $content_subs, $highlander_subs, $iter_subs, $dual_iter_subs  ) ;
 }
 
 sub initialize {
@@ -75,17 +94,19 @@ sub initialize {
 
   _verbose(sprintf "$program v%.2f", $VERSION);
 
-  my $file = shift(@ARGV);
-  $file or die "must supply file to compile";
-  $file =~ /$file_regexp/ or die "$file does not match $file_regexp";
-  -e $file or die "$file does not exist";
+  my @file = @ARGV;
+  for (@file) {
+    /$file_regexp/ or die "$_ does not match $file_regexp";
+  }
 
-  $file;
+  _debug("Files to compile: @file");
+
+  @file;
 }
 
 sub module_path {
 
-  my ($html_file_path) = @_;
+  my ($html_file_path, $docroot) = @_;
 
   _debug("substr($html_file_path, length $docroot) ;");
   my $mp = substr($html_file_path, length $docroot) ;
@@ -100,21 +121,22 @@ sub module_path {
 sub _verbose
 {
     return unless $config->verbose or $config->debug;
-    print join('', @_);
-    print "\n";
+    warn join('', @_);
+    warn "\n";
 }
 
 sub _debug
 {
     return unless $config->debug;
-    print join('', @_);
-    print "\n";
+    warn join('', @_);
+    warn "\n";
 }
 
 
 
 sub serialize_html_parse {
   my $tree = shift;
+  my $module_pkg = shift or die;
   $Data::Dumper::Purity = 1;
   our $serial = Data::Dumper->Dump([$tree], ['tree']);
   $serial =~ s/HTML::Seamstress/$module_pkg/;
@@ -123,6 +145,7 @@ sub serialize_html_parse {
 
 
 sub find_content_subs {
+  my $tree = shift;
   my @content_sub;
   my @klass_content = $tree->look_down(klass => 'content') ;
   _verbose( "found " . @klass_content . ' content nodes ' );
@@ -146,6 +169,8 @@ sub find_content_subs {
 }
 
 sub find_iter_klass {
+  my $tree = shift;
+
   my @sub;
   my @klass_content = $tree->look_down(klass => 'iter') ;
   _verbose( "found " . @klass_content . ' iter nodes ' );
@@ -169,6 +194,8 @@ sub find_iter_klass {
 }
 
 sub find_dual_iter_klass {
+  my $tree = shift;
+
   my @sub;
   my @klass_content = $tree->look_down(klass => 'dual_iter') ;
   _verbose( "found " . @klass_content . ' dual iter nodes ' );
@@ -192,6 +219,8 @@ sub find_dual_iter_klass {
 }
 
 sub find_highlander_klass {
+  my $tree = shift;
+
   my @highlander_sub;
   my @klass_content = $tree->look_down(klass => 'highlander') ;
   _verbose( "found " . @klass_content . ' highlander nodes ' );
@@ -310,9 +339,10 @@ sub %s {
 EOK
   
 
-sub pkg { sprintf <<'EOPKG', $module_pkg, $scalars, $abs, $content_look_downs, $highlander_look_downs, $iter_look_downs, $dual_iter_look_downs, $content_subs, $highlander_subs, $iter_subs, $dual_iter_subs  }
+sub pkg { my ($tree, $module_pkg, $scalars, $abs, $content_look_downs, $highlander_look_downs, $iter_look_downs, $dual_iter_look_downs, $content_subs, $highlander_subs, $iter_subs, $dual_iter_subs  ) = @_;
+  sprintf <<'EOPKG', $module_pkg, $scalars, $abs, $content_look_downs, $highlander_look_downs, $iter_look_downs, $dual_iter_look_downs, $content_subs, $highlander_subs, $iter_subs, $dual_iter_subs  }
 package %s;
-use strict;
+#use strict;
 use warnings;
 use base qw(HTML::Seamstress);
 

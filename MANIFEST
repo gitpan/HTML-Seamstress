@@ -18,10 +18,9 @@ ctb/small.stor
 ctb/thts.pl
 ctb/thts.txt
 ctb/try.pl
+cvs.pl
 discuss/design-dilemma.pod
 discuss/o.txt
-HTML-Seamstress-2.91.tar.gz
-HTML-Seamstress-2.91c.tar.gz
 lib/HTML/Seamstress.pm
 lib/HTML/Seamstress.pod
 lib/HTML/Seamstress/Compiler.pm
@@ -42,7 +41,8 @@ scripts/file.html
 scripts/preamble
 scripts/Simple/Class.pm
 seamc
-t/00system.t
+t/00.system.t
+t/01.compile-html.t
 t/content_handler.t
 t/highlander.t
 t/html/content_handler.exp

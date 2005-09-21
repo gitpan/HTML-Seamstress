@@ -1,19 +1,25 @@
 package html::highlander;
-use strict;
+#use strict;
 use warnings;
 use base qw(HTML::Seamstress);
 
 my $tree;
 
-my ($age_dialog);
+#my ($name,$date,$age_dialog);
 sub new {
-$tree = __PACKAGE__->new_from_file('/home/terry/perl/hax/HTML-Seamstress-2.6/t/html/highlander.html');
+$tree = __PACKAGE__->new_from_file('/home/metaperl/perl/src/seamstress/t/html/highlander.html');
 
 # content_accessors
 ;
 
 # highlander_accessors
 $age_dialog = $tree->look_down(id => q/age_dialog/);
+
+# iter_accessors
+;
+
+# dual_iter_accessors
+;
 
 $tree;
 }
@@ -36,6 +42,11 @@ sub age_dialog {
 
 }
 
+
+# iter subs
+
+
+# dual_iter subs
 
 
 sub tree {

@@ -9,7 +9,7 @@ use warnings;
 
 our @ISA = qw();
 
-our $VERSION = sprintf '%2d.%02d', q$Revision: 1.1.1.1 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf '%2d.%02d', q$Revision: 3.0 $ =~ /(\d+)\.(\d+)/;
 
 
 # Preloaded methods go here.
