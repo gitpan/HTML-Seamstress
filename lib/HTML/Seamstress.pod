@@ -4,11 +4,250 @@ HTML::Seamstress - HTML::Tree subclass for HTML templating via tree rewriting
 
 =head1 SYNOPSIS
 
-=head2 Text substitution via replace_content() API call.
+HTML::Seamstress provides "fourth generation" dynamic HTML generation
+(templating). 
+
+In the beginning we had...
+
+
+=head2 First generation dynamic HTML production
+
+First generation dynamic HTML production used server-side
+includes:
+
+ <p>Today's date is   <!--#echo var="DATE_LOCAL" --> </p>
+
+=head2 Second generation dynamic HTML production
+
+The next phase of HTML generation saw
+embedded HTML snippets in Perl code. For example:
+
+ sub header {
+   my $title = shift;
+   print <<"EOHEADER";
+   <head>
+      <title>$title</title>
+   </head>
+   EOHEADER
+ }
+
+=head2 Third generation dynamic HTML production
+
+The 3rd generation solutions embed
+programming language constructs with HTML. The language constructs
+are either a real language (as is with L<HTML::Mason>) or a
+pseudo/mini-language (as is with L<PeTaL>, L<Template> or
+L<HTML::Template>). Let's see some L<Template> code:
+
+ <p>Hi there [% name %], are you enjoying your stay?</p>
+
+=head2 Talkin' bout them generations...
+
+Up to now, all approaches to this issue tamper with the
+HTML in some form or fashion:
+
+=over 
+
+=item * Generation 1 adds SSI processing instructions
+
+=item * Generation 2 rips the HTML apart and adds programming elements
+
+=item * Generation 3 sprinkles programming constructs in the HTML
+
+=back
+
+=head2 Enter fourth generation dynamic HTML production
+
+The fourth generation of HTML production is distinguished by no need
+for tampering with the HTML. There are a wealth of XML-based modules
+which provide this approach (L<XML::Twig>, L<XML::LibXML>,
+L<XML::TreeBuilder>, L<XML::DOM>). HTML::Seamstress is the one CPAN
+module based around HTML and L<HTML::Tree> for this approach.
+
+=head1 PHILOSOPHY and MOTIVATION of HTML::Seamstress
+
+When looking at HTML::Seamstress, we are looking at a uniquely
+positioned 4th-generation HTML generator. Seamstress offers two sets
+of advantages: those common to all 4th generation htmlgens and those
+common to a subclass of L<HTML::Tree>.
+
+=head2 Reap 4th generation dynamic HTML generation benefits
+
+What advantages does this fourth way of HTML manipulation offer? Let's
+take a look:
+
+=head3 Separate HTML development and its programmatic modification  
+
+The contents of the document remain legal HTML/XML that can be be
+developed using standard interactive design tools. The flow of control
+of the code remains separate from the page. Technologies that mix
+content and data in a single file result in code that is often
+difficult to understand and has trouble taking full advantage of the
+object oriented programming paradigm.  
+
+
+=head3 Reduced learning curve
+
+If you have a strong hold on 
+object-oriented Perl and a solid understand of the tree-based nature
+of HTML, then all you need to do is read the manual pages showing how
+Seamstress and related modules offer tree manipulation routines and
+you are done.
+
+Extension just requires writing new Perl methods - a snap for any
+object oriented Perler.
+
+=head3 Static validation and formatting
+
+Mixing Perl and HTML (by any of the generation 1-3 approaches)
+makes it impossible to use standard validation and formatting tools
+for either Perl or HTML.
+
+
+=head3 Two full-strength programming languages: HTML and Perl
+
+Perl and HTML are solid technologies with years of effort behind
+making them robust and flexible enough to meet real-world
+technological demands.
+
+=head3 Multiple views and reuses of the same element
+
+Because manipulator and manipulated are separate, we can choose
+manipulators and/or stack them at will.
+
+
+=head2 Reap the benefits of using HTML::Tree
+
+=head3 Pragmatic HTML instead of strict X(HT)ML
+
+The real world is unfortunately more about getting HTML to work with
+IE and maybe 1 or 2 other browsers. Strict XHTML may not be acceptable
+under time and corporate pressures to get things to work with quirky
+browsers. 
+
+=head3 Rich API and User Contributions
+
+L<HTML::Tree> has a nice large set of accessor/modifier functions. If
+that is not enough, then take a gander at Matthew Sisk's
+contributions: L<http://search.cpan.org/~msisk/> as well as
+L<HTML::Element::Library>. 
+
+
+=head1 USAGE
+
+Now it's time to look at some examples. Before doing so, it is
+imperative that you understand the tree structure of HTML.
+
+=head2 Understand that HTML is a tree
+
+The best representation of this fact is this slide right here:
+
+L<http://xmlc.objectweb.org/doc/xmlcSlides/xmlcSlides.html#de>
+
+If you understand this (and maybe the rest of the slides), then you
+have a good grip on seeing HTML as a tree.
+
+L<HTML::AboutTrees> does also teach this, but it takes a while before
+he gets to what matters to us. It's a fun read nonetheless. 
+
+Now that we've got this concept under our belts let's try some full examples.
+
+=head2 Install and Setup Seamstress
+
+The first thing to remember is that Seamstress is really just
+convenience functions for L<HTML::Tree|HTML::Tree>. You can do
+entirely without 
+Seamstress. It's just that my daily real-world obligations have lead
+to a set of library functions (HTML::Element::Library) and a
+convenient way to locate "templates" (C<spkg.pl>) that work well on
+top of L<HTML::Tree|HTML::Tree>
+
+=over
+
+=item * move spkg.pl and sbase.pl onto your execution C<$PATH>
+
+C<sbase.pl> and C<spkg.pl> are used to simplify the process of 
+parsing an HTML file into HTML::Treebuilder object. In other words
+instead of having to do this in your Perl programs:
+
+ use HTML::TreeBuilder;
+
+ my $tree = HTML::TreeBuilder->new_from_file('/usr/htdocs/hello.html');
+
+You can do this:
+
+ use htdocs::hello;
+
+ my $tree = htdocs::hello->new;
+
+The lines of code is not much different, but abstracting away absolute
+paths is important in production environments where the absolute path 
+may come from who knows where via who knows how.
+
+=item * run sbase.pl
+
+sbase.pl will ask you 2 very simple questions. Just answer them. 
+When it is finished, it will have installed a package named 
+C<HTML::Seamstress::Base> on your C<@INC>. This module contains one
+function, C<comp_root()> which points to a place you wouldn't
+typically have on your C<@INC> but which you must have because your
+HTML file and corresponding C<.pm> abstracting it are going to be
+there. 
+
+=item * run spkg.pl
+
+In the default seutp, 
+no options need be supplied to this script. They
+are useful in cases where you have more than one document root or want
+to inherit from more than one place.
+
+
+ metaperl@pool-71-109-151-76:~/www$ spkg.pl moose.html
+ comp_root........ /home/metaperl/
+ html_file_path... /home/metaperl/www/
+ html_file........ moose.html
+ html_file sans... moose
+ moose.html compiled to package www::moose
+
+=item * load your abstracted HTML and manipulate it
+
+Now, from Perl, to get the TreeBuilder object
+representing this HTML file, we simply do this:
+
+ use www::moose;
+ 
+ my $tree = www::moose->new;
+ # manipulate tree...
+ $tree->as_HTML;
+
+In a mod_perl setup, you would want to pre-load your HTML and
+L<Class::Cache|Class::Cache> was designed for this very purpose. But
+that's a topic for another time.
+
+In a setup with HTML files in numerous places, I recommend setting up
+multiple C<HTML::Seamstress::Base::here>,
+C<HTML::Seamstress::Base::there> for each file root. To do this, you
+will need to use the C<--base_pkg> and C<--base_pkg_root> options to
+spkg.pl
+
+
+=item * That's it!
+
+Now you are ready to abstract away as many files as you want with the
+same C<spkg.pl> call. Just supply it with a different HTML file to
+create a different package. Then C<use> them, C<new> them and
+manipulate them and C<< $tree->as_HTML >> them at will.
+
+Now it's time to rock and roll!
+
+
+=back
+
+
+=head2 Text substitution == node mutation
 
 In our first example, we want to perform simple text substitution on
-the HTML template document. The HTML file html/hello_world.htm has
-klass attributes which serve as compiler (kompiler?) hints to Seamstress:
+the HTML template document:
 
  <html>
  <head>
@@ -21,13 +260,10 @@ klass attributes which serve as compiler (kompiler?) hints to Seamstress:
  </body>
  </html>
 
-=head3 Seamstress compiles HTML to C<html::hello_world>
-
- shell> seamc html/hello_world.htm
- Seamstress v2.91 generating html::hello_world from html/hello_world.htm
-
-Now you simply use the "compiled" version of HTML with API calls to
-HTML::TreeBuilder, HTML::Element, and HTML::Element::LIbrary
+First save this somewhere on your document root. Then compile it with
+C<spkg.pl>. Now you simply use
+the "compiled" version of HTML with API calls to 
+HTML::TreeBuilder, HTML::Element, and HTML::Element::Library.
 
  use html::hello_world; 
  
@@ -36,7 +272,12 @@ HTML::TreeBuilder, HTML::Element, and HTML::Element::LIbrary
  $tree->look_down(id => date)->replace_content('5/11/1969');
  print $tree->as_HTML;
 
-=head2 If-then-else with the highlander API call
+C<replace_content()> is a convenience function in
+L<HTML::Element::Library>. 
+
+
+
+=head2 If-then-else == node(s) deletion
 
 
  <span id="age_dialog">
@@ -54,7 +295,7 @@ HTML::TreeBuilder, HTML::Element, and HTML::Element::LIbrary
  </span>
 
 
-=head3 Compile and use the module:
+Again, compile and use the module:
 
  use html::age_dialog;
 
@@ -76,11 +317,18 @@ HTML::TreeBuilder, HTML::Element, and HTML::Element::LIbrary
   # fires first	
 
 
+And once again, 
+the function we used is the highlander method, also a part
+of L<HTML::Element::Library>.
+
+
 The following libraries are always available for more complicated
 manipulations:
 
 =over 
 
+=item * L<HTML::ElementSuper>
+
 =item * L<HTML::ElementTable>
 
 =item * L<HTML::Element::Library>
@@ -93,167 +341,30 @@ manipulations:
 
 
 
-=head1 PHILOSOPHY / MOTIVATION for HTML::Seamstress
+=head2 Looping == child/sibling proliferation
 
-The motivation for HTML::Seamstress was to provide a module which
-would allow for pure HTML to be dynamically "unrolled" without any
-foreign elements in the HTML itself. 
-
-This design goal can be met by the 3 most popular templating
-systems for Perl - L<HTML::Mason>, L<HTML::Template> and L<Template>,
-but none of them enforce it by design.
-
-A second design goal for Seamstress was to have only two technologies,
-object-oriented Perl and HTML. Neither HTML::Template or Template meet
-this design goal. HTML::Mason has components defined as a *mix* of
-Perl and HTML as it's fundamental item of reuse. Seamstress keeps the
-two technologies pure and separate. 
-
-Mixing Perl and HTML means that validation tools for both technologies
-is unavailable. Mixing mini-languages and HTML means that you are stuck
-with the disadvantages of mini-languages. The disadvantages of
-mini-languages are discussed here:
-
-L<http://perlmonks.org/?node_id=428053>
-
-A striking example of their limitations is shown here:
-L<http://perlmonks.org/?node_id=493477>
-
-So the above 3 modules can enforce the stated design goals but there
-are ways around these goals. 
-The only CPAN modules which enforce both design goals completely are
-L<XML::LibXML>, L<PeTaL> and this module. If you have time to generate
-high-quality XML and are comfortable with DOM then there is no problem
-with this module. If you prefer a Perlish and intuitive collection of
-methods, then the fact that Seamstress is built on top of
-L<HTML::TreeBuilder> will appeal to you. Finally, we come to
-L<PeTaL>. A nice module, but I don't enjoy learning mini-languages and
-mastery of PeTal entails learning TAL and MetaTAL.
-
-
-
-=head1 DESCRIPTION
-
-This section will cover two things. What Seamstress offers and the
-theory of HTML as trees.
-
-
-
-=head2 HTML as Trees
-
-From reading L<HTML::Tree::Scanning>, we know that HTML has a tree
-structure. HTML::Seamstress is a subclass of L<HTML::TreeBuilder>
-and L<HTML::Element::Library>
-which makes it easier to perform common HTML templating
-operations as tree rewriting.
-
-
-=head3 Text Substitution == Node rewriting
-
-The L</SYNOPSIS> gave an example of text substitution. From a
-tree-writing perspective, text substitution involves an in-place
-change to the content of a node of an HTML tree.
-
-You will find the L<HTML::Element::Library/"Tree Rewriting Methods"> of 
-great use when doing this sort of templating.
-
-=head3 Conditional Processing (aka if/unless) == Node Deletion 
-
-In tree rewriting terms, an C<if> directive is used to decide whether a 
-particular node of the HTML tree is preserved or deleted.
-
-The most useful function for this is the highlander method, also a part
-of L<HTML::Element::Library>.
-
-=head3 Looping (e.g. Table Unrolling) == Child Replication
-
-Table unrolling, pulldown creation, li unrolling, and dl unrolling are
+Table unrolling, pulldown creation, C<li> unrolling, and C<dl>
+unrolling are 
 all examples of a tree operation in which you take a child of a node
 and clone it and then alter it in some way (replace the content, alter
 some of its attributes), and then stick it under its parent.
 
-Functions for use with the common HTML elements --- <table>, <ol>,
-<ul>, <dl>, <select> are documented in L<HTML::Element::Lbrary> and are
+Functions for use with the common HTML elements --- C<< <table> >>, 
+C<< <ol> >>,
+C<< <ul> >>, C<< <dl> >>, C<< <select> >> 
+are documented in 
+L<HTML::Element::Library> and are
 prefaced with the words "Tree Building Methods".
 
 
 =head2 What Seamstress offers
 
-All of the tree-rewriting functionality discussed above exists outside
-of this distribution in libraries
-
-=over 
-
-=item * L<HTML::ElementTable>
-
-=item * L<HTML::Element::Library>
-
-=item * L<HTML::Element>
-
-=item * L<HTML::Tree>
-
-=back
-
-The module HTML::Seamstress is  a base class of HTML::Element and
-HTML::Element::Library which makes it easy to access the API calls of
-those modules in a convenient fashion. 
-
-The HTML::Seamstress
-distribution also comes with a small script, C<seamc>, which 
-creates .pm files for .htm(l)? files, which can then be used by your
-Perl code. The .pm files have only a constructor, C<new>, which
-returns a tree of the HTML file blessed into the HTML::Seamstress
-class, which due to its subclassing, can be operated on by most of the
-modules listed above. Matthew Sisk's modules have not been subclassed
-or required by Seamstress because I have not had the personal need to
-use them, but doing so should be straightforward. Tests and patches
-welcome. 
-
-seamc requires a file called seamc.cfg to exist in the directory above
-the root for your HTML. Thus if your HTML is in a directory called
-html, the file seamc.cfg would be a sibling of the directory
-html. Here's an exmaple from a website I am doing now:
-
-  /var/www/terry/gimblerus.com:
-  total 56
-  drwxr-xr-x  11 terry terry 4096 Feb  3 02:19 .
-  drwxr-xr-x   5 terry terry 4096 Feb  4 00:46 ..
-  -rw-r--r--   1 terry terry  318 Jan 30 02:59 favicon.ico
-  drwxr-xr-x   2 terry terry 4096 Feb  3 23:57 html
-  drwxr-xr-x   2 terry terry 4096 Jan 29 23:12 img
-  -rw-r--r--   1 terry terry  544 Feb  2 16:35 index.html
-  -rw-r--r--   1 terry terry    1 Jan 29 16:41 seamc.cfg
-  drwxr-xr-x   3 terry terry 4096 Jan 29 23:13 sql
-
-  /var/www/terry/gimblerus.com/html:
-  total 148
-  drwxr-xr-x   2 terry terry 4096 Feb  3 23:57 .
-  drwxr-xr-x  11 terry terry 4096 Feb  3 02:19 ..
-  -rw-r--r--   1 terry terry 1188 Feb  3 23:57 addclan.html
-  -rw-r--r--   1 terry terry  396 Feb  2 01:06 addclan.pm  # <- Seamstress!
-  -rw-r--r--   1 terry terry  323 Feb  3 17:44 footer.html
-  -rw-r--r--   1 terry terry  394 Feb  1 23:50 footer.pm   # <- Seamstress!
-
-To use seamc, you simply type 
-
-  seamc -verbose $html_file 
-
-from any directory. seamc will ascend the directory tree until it
-finds the seamc.cfg file and then create a Perl module whose name will
-allow it to be used as long as the C<html/> directory is in your Perl
-include path, C<@INC>.
-
-For the example above, footer.pm will have package name html::footer
-and would be used like so:
-
- use lib '/var/www/terry/gimblerus.com';
- use html::footer;
-
- my $tree = html::footer->new;
- 
- # ... etc
-
-=head3 A simple structure-modifying method, expand_replace()
+Beyond the "compilation" support documented above, Seamstress offers
+nothing more than a simple structure-modifying method,
+expand_replace(). And to be honest, it probably shouldn't offer
+that. But once, when de-Mason-izing a site, it was easier to keep
+little itty-bitty components all over and so I wrote this method to
+facilitate the process.
 
 Let's say you have this HTML:
 
@@ -268,17 +379,38 @@ Let's say you have this HTML:
       </div>
 
 In this case, the content of each sideBlock is the name of a Perl
-Seamstress-style class. As you know, When the constructor for such a class is called an
-HTML::Element, $E,  will be returned for it's parsed content.
+Seamstress-style class. As you know, when the constructor for such a
+class is called an 
+HTML::Element, C<$E>, will be returned for it's parsed content.
 
 In this case, we want the content of the div element to go from the
-being the class name to being the HTML::Element that that class
-constructs, in other words:
-
-
-and so to inline all 3 tags you would do the following;
+being the class name to being the HTML::Element that the class
+constructs. So to inline all 3 tags you would do the following;
 
  $tree->look_down(id => $_)->expand_replace for qw(mpi mnm mg);
+
+=head2 What Seamstress works with
+
+=head3 Class::Cache
+
+Useful in mod_perl environments and anywhere you want control over the
+timing of object creation.
+
+=head3 The family of HTML::Tree contributions
+
+=over 4
+
+=item * L<HTML::ElementTable>
+
+=item * L<HTML::Element::Library>
+
+=item * L<HTML::Element>
+
+=item * L<HTML::Tree>
+
+=back
+
+
 
 =head1 SEE ALSO
 
@@ -289,6 +421,47 @@ L<http://perlmonks.org/index.pl?node_id=302606>
 =head2 HTATR II: HTML table generation via DWIM tree rewriting
 
 L<http://perlmonks.org/index.pl?node_id=303188>
+
+=head2 Survey of Surveys on HTML Templating systems
+
+L<http://perlmonks.org/?node_id=433729>
+
+A fierce head-to-head between PeTaL and Seamstress goes on for several
+days in this thread!
+
+
+=head2 The disadvantages of mini-languages
+
+L<http://perlmonks.org/?node_id=428053>
+
+=head2 The limitations of mini-languages
+
+A striking example of the limitations of mini-languages is shown here:
+L<http://perlmonks.org/?node_id=493477>
+
+But the most cogent argument for using full-strength languages as
+opposed to mixing them occurs in the L<Text::Template> docs:
+
+ When people make a template module like this one, they almost always
+ start by inventing a special syntax for substitutions. For example,
+ they build it so that a string like %%VAR%% is replaced with the
+ value of $VAR. Then they realize the need extra formatting, so they
+ put in some special syntax for formatting. Then they need a loop, so
+ they invent a loop syntax. Pretty soon they have a new little
+ template language. 
+
+ This approach has two problems: First, their little language is
+ crippled. If you need to do something the author hasn't thought of,
+ you lose. Second: Who wants to learn another language? You already
+ know Perl, so why not use it? 
+
+=head2 Problems with JSP (JSP is similar to HTML::Mason)
+
+L<http://www.servlets.com/soapbox/problems-jsp-reaction.html>
+
+L<http://www-106.ibm.com/developerworks/library/w-friend.html?dwzone=web>
+
+L<http://www.theserverside.com/resources/article.jsp?l=XMLCvsJSP>
 
 =head2 Los Angeles Perl Mongers Talk on HTML::Seamstress
 
@@ -304,9 +477,6 @@ Two other frameworks come to mind. Both are stricter with regard
 to the correctness of the HTML and both use a different means for 
 node lookup and rewrite.
 
-For me, Seamstress was a natural extension of my love for 
-HTML::TreeBuilder, but if I had an XML job to do, I really think I would
-reach for Petal. It is quite sweet.
 
 =over
 
@@ -336,9 +506,39 @@ module.
 
 =back
 
+=head1 SUPPORT
+
+L<http://lists.sourceforge.net/lists/listinfo/seamstress-discuss>
+
 =head1 AUTHOR
 
-Terrence Brannon, E<lt>tbone@cpan.org<gt>
+Terrence Brannon, C<< tbone@cpan.org >>
+
+=head2 ACKNOWLEDGEMENTS
+
+I would like to thank 
+
+=over
+
+=item * Chris Winters for exposing me to XMLC
+
+=item * Paul Lucas for writing C<HTML_Tree>
+
+L<http://homepage.mac.com/pauljlucas/software/html_tree/>
+
+HTML_Tree is a C++ HTML manipulator with a Perl interface. Upon using
+his Perl interface, I began to notice limitations and extended his
+Perl interface. The author was not interested in working with me or my
+extensions, so I had to continue on a separate path.
+
+=item * C<johnnywang> for his post about dynamic HTML generation 
+
+L<http://perlmonks.org/?node_id=505080>.
+
+=item * Matthew Sisk and John Porter for lively personal discussions
+
+=back
+
 
 =head1 COPYRIGHT AND LICENSE
 

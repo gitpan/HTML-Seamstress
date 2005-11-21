@@ -2,8 +2,18 @@
 use strict;
 use Test::More qw(no_plan);
 
-warn `pwd`;
-system "cd t/html; ../../seamc -debug *.html";
+use lib 't/';
+
+use Cwd;
+
+my $root = getcwd . '/t/';
+
+warn "ROOT: $root";
+
+my @html = glob 't/html/*.html';
+system 
+    "spkg.pl --base_pkg_root=$root $_"
+    for @html;
 
 ok 1;
 

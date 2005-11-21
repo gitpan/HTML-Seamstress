@@ -5,13 +5,14 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'		=> 'HTML::Seamstress',
     'VERSION_FROM'	=> 'lib/HTML/Seamstress.pm', # finds $VERSION
+    'EXE_FILES'         => ['spkg.pl'],
     'PREREQ_PM'		=> 
 	      {
-	       AppConfig::Std => 1.07,
 	       File::Slurp => 9999.06,
 	       HTML::Element::Library => 0.01,
 	       HTML::PrettyPrinter => 0.03,
 	       HTML::Tree => 3.18,
-	       Pod::Usage => 1.16,
+	       Pod::Usage => 1.14,
 	      }, 
+
 );

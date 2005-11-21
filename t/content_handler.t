@@ -9,11 +9,12 @@ use Test::More qw(no_plan);
 use html::content_handler;
 
 
-
 my $tree = html::content_handler->new;
-$tree->name('terrence brannon')->date('5/11/1969');
 
-my $generated_html = 't/html/content_handler.out';
+$tree->look_down(id => 'name')->replace_content('terrence brannon');
+$tree->look_down(id => 'date')->replace_content('5/11/1969');
+
+my $generated_html = 't/html/content_handler.gen';
 my $expected_html  = 't/html/content_handler.exp';
 
 ptree $tree, $generated_html;

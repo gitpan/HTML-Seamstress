@@ -1,58 +1,27 @@
 package html::highlander;
-#use strict;
+
+use strict;
 use warnings;
-use base qw(HTML::Seamstress);
 
-my $tree;
+use HTML::TreeBuilder;
 
-#my ($name,$date,$age_dialog);
+use lib '/ernest/dev/seamstress/t/';
+use base qw(HTML::Seamstress::Base); 
+
+our $tree;
+
+#warn HTML::Seamstress::Base->comp_root(); 
 sub new {
-$tree = __PACKAGE__->new_from_file('/home/metaperl/perl/src/seamstress/t/html/highlander.html');
+  my $file = HTML::Seamstress::Base->comp_root() . 'html/highlander.html' ;
 
-# content_accessors
-;
+  -e $file or die "$file does not exist. Therefore cannot load";
 
-# highlander_accessors
-$age_dialog = $tree->look_down(id => q/age_dialog/);
-
-# iter_accessors
-;
-
-# dual_iter_accessors
-;
-
-$tree;
+  $tree =HTML::TreeBuilder->new;
+  $tree->store_declarations;
+  $tree->parse_file($file);
+  $tree->eof;
+  
+  bless $tree, __PACKAGE__;
 }
-
-# content subs
-
-# highlander subs
-
-sub age_dialog {
-   my $class = shift;
-   my $aref = shift;
-   my $local_root_id = 'age_dialog';
-
-   if ($aref) {
-      $age_dialog->highlander($local_root_id, $aref, @_);
-      return $tree
-   } else {
-      return $age_dialog
-   }
-
-}
-
-
-# iter subs
-
-
-# dual_iter subs
-
-
-sub tree {
-  $tree
-}
-
 
 1;
-

@@ -12,7 +12,7 @@ sub req_ver {
 
 my @module = 
   qw(
-     HTML::Seamstress Pod::Usage AppConfig::Std HTML::Tree HTML::TreeBuilder 
+     HTML::Seamstress Pod::Usage HTML::Tree HTML::TreeBuilder 
      HTML::Element HTML::Element::Library 
      HTML::Parser HTML::Entities HTML::Tagset 
      HTML::PrettyPrinter

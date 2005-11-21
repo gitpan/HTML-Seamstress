@@ -6,6 +6,7 @@ use warnings;
 
 #use Array::Dissect qw(:all);
 use Carp qw(confess);
+use Cwd;
 use Data::Dumper;
 use File::Spec;
 use HTML::Element::Library;
@@ -15,7 +16,7 @@ use Scalar::Listify;
 use base qw/HTML::TreeBuilder HTML::Element/;
 
 
-our ($VERSION) = ('$Revision: 3.0 $' =~ m/([\.\d]+)/) ;
+our ($VERSION) = ('$Revision: 3.3 $' =~ m/([\.\d]+)/) ;
 
 our $ID = 'id';
 
@@ -38,6 +39,8 @@ sub new_from_file {
   $file or die "must supply file for weaving";
 
   my $self = HTML::TreeBuilder->new_from_file($file);
+
+#  $self->no_space_compacting(1);
 
   bless $self, $class;
 

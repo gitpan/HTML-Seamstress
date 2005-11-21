@@ -13,15 +13,16 @@ sub tage {
   my $tree = html::highlander->new;
 
 
-  $tree->age_dialog
-    (
-     [
-      under10 => sub { $_[0] < 10} , 
-      under18 => sub { $_[0] < 18} ,
-      welcome => sub { 1 }
-     ],
-     $age
-    );
+  $tree->highlander(
+    age_dialog =>
+	[
+	  under10 => sub { $_[0] < 10} , 
+	  under18 => sub { $_[0] < 18} ,
+	  welcome => sub { 1 }
+	 ],
+    $age
+   );
+
 
   my $root = "t/html/highlander-$age";
 

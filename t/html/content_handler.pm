@@ -1,71 +1,27 @@
 package html::content_handler;
-#use strict;
+
+use strict;
 use warnings;
-use base qw(HTML::Seamstress);
 
-my $tree;
+use HTML::TreeBuilder;
 
-#my ($name,$date);
+use lib '/ernest/dev/seamstress/t/';
+use base qw(HTML::Seamstress::Base); 
+
+our $tree;
+
+#warn HTML::Seamstress::Base->comp_root(); 
 sub new {
-$tree = __PACKAGE__->new_from_file('/home/metaperl/perl/src/seamstress/t/html/content_handler.html');
+  my $file = HTML::Seamstress::Base->comp_root() . 'html/content_handler.html' ;
 
-# content_accessors
-$name = $tree->look_down(id => q/name/);
-$date = $tree->look_down(id => q/date/);
+  -e $file or die "$file does not exist. Therefore cannot load";
 
-# highlander_accessors
-;
-
-# iter_accessors
-;
-
-# dual_iter_accessors
-;
-
-$tree;
+  $tree =HTML::TreeBuilder->new;
+  $tree->store_declarations;
+  $tree->parse_file($file);
+  $tree->eof;
+  
+  bless $tree, __PACKAGE__;
 }
-
-# content subs
-
-sub name {
-   my $self = shift;
-   my $content = shift;
-   if (defined($content)) {
-      $name->content_handler(name => $content);
-      return $tree
-   } else {
-      return $name
-   }
-
-}
-
-
-
-sub date {
-   my $self = shift;
-   my $content = shift;
-   if (defined($content)) {
-      $date->content_handler(date => $content);
-      return $tree
-   } else {
-      return $date
-   }
-
-}
-
-
-# highlander subs
-
-# iter subs
-
-
-# dual_iter subs
-
-
-sub tree {
-  $tree
-}
-
 
 1;
-
