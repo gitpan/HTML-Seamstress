@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'		=> 'HTML::Seamstress',
     'VERSION_FROM'	=> 'lib/HTML/Seamstress.pm', # finds $VERSION
-    'EXE_FILES'         => ['spkg.pl'],
+    'EXE_FILES'         => ['sbase.pl', 'spkg.pl'],
     'PREREQ_PM'		=> 
 	      {
 	       File::Slurp => 9999.06,
@@ -13,6 +13,7 @@ WriteMakefile(
 	       HTML::PrettyPrinter => 0.03,
 	       HTML::Tree => 3.18,
 	       Pod::Usage => 1.14,
+	       Class::Prototyped => 1.10,
 	      }, 
 
 );

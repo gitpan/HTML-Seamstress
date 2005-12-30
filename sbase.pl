@@ -109,15 +109,88 @@ print "$_P has been written to $outdir as $outfile\n";
 
 =head1 DESCRIPTION
 
-That's the whole description, but it looks funny doesn't it? Why is that
-C</..> there? Well, it's very simple you see. This program sets up a class
-which makes it possible to access your HTML files. If you want to access
-/usr/htdocs/index.html via C<use htdocs::index> then your document root
-should be C</usr> and not C</usr/htdocs>. If you would rather access 
-C</usr/htdocs/index.html> via C<use index> then supply C<$DOCUMENT_ROOT> 
-instead.
+The first thing to never ever forget about L<HTML::Seamstress> is this:
 
-I prefer the longer module name because it makes namespace clashes much 
-less likely.
+ There is no magick *anywhere*
 
-=cut
+If you know object-oriented Perl and you are comfortable with
+conceptualizing HTML as a tree, then you can never get
+confused. Everything that Seamstress offers is based on improving the
+synergy of these two powers.
+
+So, let's look at one way to manipulate HTML, completely
+Seamstress-free: 
+
+ use HTML::TreeBuilder;
+ my $tree = HTML::TreeBuilder->new_from_file('/usr/www/file.html');
+ $tree->this;
+ $tree->that;
+ $tree->as_HTML;
+
+Let's make it easier to find C<file.html>:
+
+ package www::file;
+ use base qw(HTML::Seamstress);
+
+ sub new {
+     HTML::TreeBuilder->new_from_file('/usr/www/file.html');
+ }
+
+So now our code is this:
+
+ use www::file;
+ my $tree = www::file->new;
+ $tree->this;
+ $tree->that;
+ $tree->as_HTML;
+
+Same amount of code. It's just we dont have to manage pathnames.
+
+Now, Seamstress actually does something a little more flexible in the
+package it creates for your class. Instead of a long absolute path,
+it abstracts away the root of the absolute path, creating a class for
+your HTML file like this:
+
+ package www::file;
+ use base qw(HTML::Seamstress::Base); # slight difference
+
+ sub new {
+     HTML::TreeBuilder->new_from_file(
+       HTML::Seamstress::Base->comp_root() . 'file.html';
+   )
+ }
+
+And the mainline code uses C<www::file> just as before.
+
+So now we see some flexibility. The method
+C<HTML::Seamstress::Base::comp_root()> can be
+configured to return values based on configuration settings and can
+vary based on deployment setup (e.g. production versus dev).
+
+So, sbase creates the C<HTML::Seamstress::Base> package for you. It
+will work fine for most setups. If your root is not hardcoded and must
+be derived by a series of function calls, then simply modify
+C<Base.pm> to fit your setup. Where I work, our Base class looks like
+this: 
+
+
+ package HTML::Seamstress::Base;
+ use base qw(HTML::Seamstress);
+
+ use Wigwam::Config;
+
+ use vars     qw($comp_root);
+
+ # put a "/" on end of path - VERY important
+ BEGIN         { $comp_root = $Wigwam::Config{'PLAYPEN_ROOT'} . '/' }
+
+ use lib         $comp_root;
+
+ sub comp_root { $comp_root }
+
+ 1;
+
+
+C<Wigwam> is a tool for specifying all software and file path
+dependencies of your software: L<http://www.wigwam-framework.com>. So,
+we get our 

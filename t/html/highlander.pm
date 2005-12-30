@@ -3,7 +3,8 @@ package html::highlander;
 use strict;
 use warnings;
 
-use HTML::TreeBuilder;
+use base qw(Class::Prototyped HTML::Seamstress);
+
 
 use lib '/ernest/dev/seamstress/t/';
 use base qw(HTML::Seamstress::Base); 
@@ -11,8 +12,9 @@ use base qw(HTML::Seamstress::Base);
 our $tree;
 
 #warn HTML::Seamstress::Base->comp_root(); 
+#HTML::Seamstress::Base
 sub new {
-  my $file = HTML::Seamstress::Base->comp_root() . 'html/highlander.html' ;
+  my $file = __PACKAGE__->comp_root() . 'html/highlander.html' ;
 
   -e $file or die "$file does not exist. Therefore cannot load";
 

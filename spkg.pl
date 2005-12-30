@@ -101,7 +101,8 @@ package %s;
 use strict;
 use warnings;
 
-use HTML::TreeBuilder;
+use base qw(Class::Prototyped HTML::Seamstress);
+
 
 %s;
 use base qw(%s); 
@@ -109,8 +110,9 @@ use base qw(%s);
 our $tree;
 
 #warn %s->comp_root(); 
+#%s
 sub new {
-  my $file = %s->comp_root() . '%s' ;
+  my $file = __PACKAGE__->comp_root() . '%s' ;
 
   -e $file or die "$file does not exist. Therefore cannot load";
 
@@ -207,7 +209,7 @@ path to the HTML file to be processed.
 
 L<Template> and L<HTML::Mason> both create objects which they configure with
 an C<INCLUDE_PATH> or C<comp_root>, respectively. Seamstress leverages Perl's
-standard include mechanism to find HTML files. As such, a c<base_pkg> with a
+standard include mechanism to find HTML files. As such, a C<base_pkg> with a
 method that will allow runtime C<require>s of such packages is needed. 
 
 

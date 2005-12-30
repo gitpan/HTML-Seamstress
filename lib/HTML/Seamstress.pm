@@ -16,36 +16,19 @@ use Scalar::Listify;
 use base qw/HTML::TreeBuilder HTML::Element/;
 
 
-our ($VERSION) = ('$Revision: 3.3 $' =~ m/([\.\d]+)/) ;
+our ($VERSION) = ('$Revision: 3.4 $' =~ m/([\.\d]+)/) ;
 
 our $ID = 'id';
 
+sub eval_require {
+  my $module = shift;
 
-# Preloaded methods go here.
-sub new {
+  return unless $module;
 
-  my ($class) = @_;
+  eval "require $module";
 
-  my $self = HTML::TreeBuilder->new;
-
-  bless $self, $class;
-
+  confess $@ if $@;
 }
-
-sub new_from_file {
-
-  my ($class, $file) = @_;
-
-  $file or die "must supply file for weaving";
-
-  my $self = HTML::TreeBuilder->new_from_file($file);
-
-#  $self->no_space_compacting(1);
-
-  bless $self, $class;
-
-}
-
 
 sub HTML::Element::expand_replace {
     my $node = shift;

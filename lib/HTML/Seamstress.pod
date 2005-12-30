@@ -115,6 +115,12 @@ technological demands.
 Because manipulator and manipulated are separate, we can choose
 manipulators and/or stack them at will.
 
+=head3 Parallel generation of a single page natural
+
+A tree of HTML usually contains subtrees with no
+inter-dependance. They therefore can be manipulated in parallel. If a
+page contains 5 areas each of which takes C<N> time, then one could
+realize an N-fold speedup.
 
 =head2 Reap the benefits of using HTML::Tree
 
@@ -132,6 +138,78 @@ that is not enough, then take a gander at Matthew Sisk's
 contributions: L<http://search.cpan.org/~msisk/> as well as
 L<HTML::Element::Library>. 
 
+=head1 Seamstress contains no voodoo elements whatsoever
+
+=head2 Seamstress is here to help you use HTML::Tree, that's all.
+
+=head2 The meat-skeleton paradigm
+
+Read and digest this. It will become important in the next section.
+
+HTML pages typically have meat and a skeleton. The meat varies from page
+to page while the skeleton is fairly (though not completely) 
+static. For example, the skeleton of a webpage is usually a header, a
+footer, and a navbar. The meat is what shows up when you click on a
+link on the page somewhere. While the meat will change with each
+click, the skeleton is rather static.
+
+Mason accomodates the meat-skeleton paradigm via
+an C<autohandler> and C<< $m->call_next() >>. Template 
+accomodates it via its C<WRAPPER> directive.
+
+And Seamstress? Well, here's what you _can_ do:
+
+=over
+
+=item 1 generate the meat, C<$meat>
+
+This is typically what you see in the C<body> part of an HTML page
+
+=item 2 generate the skeleton, C<$skeleton>
+
+This is typically the html, head, and maybe some body 
+
+=item 3 put the meat in the skeleton
+
+=back
+
+So, nothing about this is forced. This is just how I typically do
+things.
+
+
+=head2 Seamstress abstracts HTML files as Perl classes
+
+Let's see why this is a good idea. In Mason, your Perl and HTML are
+right there together in the same file. 
+Same with Template. Now, since Seamstress
+operates on the HTML without touching the HTML, the operations and
+the HTML are not in the same file. So we create a Perl module to
+glue the HTML file to the operations we plan to perform on it.
+
+This module (auto-created by F<spkg.pl> and perhaps F<sbase.pl>)
+has a constructor C<new()>, which grabs the HTML file and 
+constructs an L<HTML::Element|HTML::Element> tree from it and
+returns it to you.
+
+It also contains a C<process()> subroutine which processes the 
+HTML in some way: text substitutions, unrolling list elements,
+building tables, and whatnot.
+
+Finally, it contains a C<fixup()> subroutine. This subroutine is
+designed to support the meat-skeleton paradigm, discussed above.
+The C<process()> subroutine generated the C<$meat>. After <$meat>
+has been placed in C<$skeleton>, there may be some page-specific
+processing to the whole HTML page that you want to: pop in some
+javascript, remove a copyright notice, whatever. That's what 
+this routine is for.
+
+Now that I've said all that, please understand that you are perfectly
+free to call C<new()> and do what you want with the HTML tree. You
+don't have to use C<process()> and C<fixup()>. But they are there and
+are used by L<Catalyst::View::Seamstress> to make meat-skeleton
+dynamic HTML development quick-and-easy (and non-greasy).
+	 
+
 
 =head1 USAGE
 
@@ -147,8 +225,8 @@ L<http://xmlc.objectweb.org/doc/xmlcSlides/xmlcSlides.html#de>
 If you understand this (and maybe the rest of the slides), then you
 have a good grip on seeing HTML as a tree.
 
-L<HTML::AboutTrees> does also teach this, but it takes a while before
-he gets to what matters to us. It's a fun read nonetheless. 
+L<HTML::Tree::AboutTrees> does also teach this, but it takes a while
+before he gets to what matters to us. It's a fun read nonetheless. 
 
 Now that we've got this concept under our belts let's try some full examples.
 
@@ -536,6 +614,10 @@ extensions, so I had to continue on a separate path.
 L<http://perlmonks.org/?node_id=505080>.
 
 =item * Matthew Sisk and John Porter for lively personal discussions
+
+=item * Matthew Hodgson (Arathorn on #catalyst) 
+
+for brainstorming with me on how to produce a Catalyst view for Seamstress
 
 =back
 
