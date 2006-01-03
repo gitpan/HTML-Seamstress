@@ -13,6 +13,8 @@ use Pod::Usage;
 
 our $VERSION = 1.0;
 
+my $cmdline = join ' ', ($0, @ARGV);
+
 
 my ($base_pkg, $base_pkg_root, $cvs_add, $base_append);
 
@@ -98,6 +100,8 @@ sub template {
 <<'EOTEMPLATE';
 package %s;
 
+# cmdline: %s
+
 use strict;
 use warnings;
 
@@ -124,6 +128,27 @@ sub new {
   bless $tree, __PACKAGE__;
 }
 
+sub process {
+  my ($tree, $c, $stash) = @_;
+
+  use Data::Dumper;
+  warn "PROCESS_TREE: ", $tree->as_HTML;
+
+  # $tree->look_down(id => $_)->replace_content($stash->{$_})
+  #     for qw(name date);
+
+  $tree;
+}
+
+sub fixup {
+  my ($tree, $c, $stash) = @_;
+
+  $tree;
+}
+
+
+
+
 1;
 EOTEMPLATE
 }
@@ -131,6 +156,7 @@ EOTEMPLATE
 sub fill_template {
   my $template = template;
   sprintf $template,
+      $cmdline,
       $html_pkg, use_lib,
 	  use_base_qw, $base_pkg, $base_pkg,
 	      relpath_to_file

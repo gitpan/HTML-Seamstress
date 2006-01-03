@@ -11,12 +11,12 @@ use Data::Dumper;
 use File::Spec;
 use HTML::Element::Library;
 use Scalar::Listify;
-#use Tie::Cycle;
+
 
 use base qw/HTML::TreeBuilder HTML::Element/;
 
 
-our ($VERSION) = ('$Revision: 3.4 $' =~ m/([\.\d]+)/) ;
+our ($VERSION) = ('$Revision: 3.5 $' =~ m/([\.\d]+)/) ;
 
 our $ID = 'id';
 
