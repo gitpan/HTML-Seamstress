@@ -1,10 +1,8 @@
 package HTML::Seamstress;
 
-#use 5.008;
 use strict;
 use warnings;
 
-#use Array::Dissect qw(:all);
 use Carp qw(confess);
 use Cwd;
 use Data::Dumper;
@@ -16,9 +14,21 @@ use Scalar::Listify;
 use base qw/HTML::TreeBuilder HTML::Element/;
 
 
-our ($VERSION) = ('$Revision: 3.5 $' =~ m/([\.\d]+)/) ;
+our ($VERSION) = ('$Revision: 3.6 $' =~ m/([\.\d]+)/) ;
 
 our $ID = 'id';
+
+sub new_from_file { # or from a FH
+  my $class = shift;
+  confess ("new_from_file takes only one argument")
+   unless @_ == 1;
+  confess ("new_from_file is a class method only")
+   if ref $class;
+  my $new = $class->new();
+  $new->parse_file($_[0]);
+  return $new;
+}
+
 
 sub eval_require {
   my $module = shift;

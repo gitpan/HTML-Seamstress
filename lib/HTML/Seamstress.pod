@@ -288,6 +288,8 @@ footer, and a navbar. The meat is what shows up when you click on a
 link on the page somewhere. While the meat will change with each
 click, the skeleton is rather static.
 
+The perfect example of 
+
 Mason accomodates the meat-skeleton paradigm via
 an C<autohandler> and C<< $m->call_next() >>. Template 
 accomodates it via its C<WRAPPER> directive.
@@ -313,6 +315,13 @@ things and that is why
 L<Catalyst::View::Seamstress|Catalyst::View::Seamstress> has support
 for this.
 
+In all honesty, the meat-skeleton paradigm should be supported here
+and called from C<Catalyst::View::Seamstress>. But the problem is, I
+don't
+want to create an abstract API here unless I have used the
+meat-skeleton paradigm from one other framework besides Catalyst. Then
+I will have a good idea of how to refactor it so any framework can
+make good use of the paradigm.
 
 
 
