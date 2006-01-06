@@ -11,22 +11,31 @@ use HTML::Element::Library;
 use Scalar::Listify;
 
 
-use base qw/HTML::TreeBuilder HTML::Element/;
+use base qw/HTML::TreeBuilder HTML::Element HTML::Element::Library/;
 
 
-our ($VERSION) = ('$Revision: 3.6 $' =~ m/([\.\d]+)/) ;
+our ($VERSION) = ('$Revision: 3.7 $' =~ m/([\.\d]+)/) ;
 
 our $ID = 'id';
 
 sub new_from_file { # or from a FH
-  my $class = shift;
-  confess ("new_from_file takes only one argument")
-   unless @_ == 1;
-  confess ("new_from_file is a class method only")
-   if ref $class;
-  my $new = $class->new();
-  $new->parse_file($_[0]);
-  return $new;
+  my ($class, $file) = @_;
+
+  warn $file;
+
+  my $new = HTML::TreeBuilder->new_from_file($file);
+  bless $new, $class;
+}
+
+
+sub html {
+  my ($class, $file, $extension) = @_;
+
+  $extension ||= 'html';
+
+  my $pm = File::Spec->rel2abs($file);
+  $pm =~ s!pm$!$extension!;
+  $pm;
 }
 
 

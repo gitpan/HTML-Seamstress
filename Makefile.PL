@@ -17,3 +17,13 @@ WriteMakefile(
 	      }, 
 
 );
+
+sub MY::postamble { q{
+
+
+docs: lib/HTML/Seamstress/Quickstart.tt-out
+	cp lib/HTML/Seamstress/Quickstart.tt-out lib/HTML/Seamstress/Quickstart.pod
+
+
+  };
+}

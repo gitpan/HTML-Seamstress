@@ -110,13 +110,19 @@ use base qw(Class::Prototyped HTML::Seamstress);
 
 %s;
 use base qw(%s); 
+use vars qw($html);
 
 our $tree;
 
 #warn %s->comp_root(); 
 #%s
+
+
+$html = __PACKAGE__->html(__FILE__ => 'html') ;
+
 sub new {
-  my $file = __PACKAGE__->comp_root() . '%s' ;
+#  my $file = __PACKAGE__->comp_root() . '%s' ;
+  my $file = $html;
 
   -e $file or die "$file does not exist. Therefore cannot load";
 
