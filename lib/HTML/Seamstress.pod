@@ -584,17 +584,9 @@ constructs. So to inline all 3 tags you would do the following;
 
  $tree->look_down(id => $_)->expand_replace for qw(mpi mnm mg);
 
-=head2 METHODS
-
-=head3 ->html()
-
-This method takes C<__FILE__>, and optionally a desired C<$extension>
-(defaults to 'html' if not given) and
-changes the extension on C<__FILE__> from C<.pm> to C<$extension>.
-This works well for common situations. 
 
 
-=head1 What Seamstress works with
+=head2 What Seamstress works with
 
 =head3 Class::Cache
 
@@ -615,6 +607,14 @@ timing of object creation.
 
 =back
 
+=head1 METHODS
+
+=head2 ->html()
+
+This method takes C<__FILE__>, and optionally a desired C<$extension>
+(defaults to 'html' if not given) and
+changes the extension on C<__FILE__> from C<.pm> to C<$extension>.
+This works well for common situations. 
 
 
 =head1 SEE ALSO

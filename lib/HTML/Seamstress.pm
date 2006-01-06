@@ -14,9 +14,8 @@ use Scalar::Listify;
 use base qw/HTML::TreeBuilder HTML::Element HTML::Element::Library/;
 
 
-our ($VERSION) = ('$Revision: 3.7 $' =~ m/([\.\d]+)/) ;
+our ($VERSION) = ('$Revision: 3.8 $' =~ m/([\.\d]+)/) ;
 
-our $ID = 'id';
 
 sub new_from_file { # or from a FH
   my ($class, $file) = @_;

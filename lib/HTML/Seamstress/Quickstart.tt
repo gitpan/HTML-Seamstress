@@ -36,7 +36,8 @@ makes it easy to replace all the content of an element. This will make
 our script shorter. If we simply use Seamstress, its
 C<new_from_file()> method will bless the
 HTML tree into a class which inherits from HTML::Element::Library,
-making it easy for us to shorten our program.
+making it easy for us to shorten our program. So let's rework the
+example using bare-bones Seamstress.
 
 =head1 Base bones Seamstress rework
 
@@ -64,7 +65,7 @@ Ok sweet, we have a nice tight program. But is this really
 application-level code? As the user of ultra-scaffolded frameworks
 such as L<Class::DBI|Class::DBI> and L<Catalyst|Catalyst>, I can say
 no. As one who has perused the L<Template|Template> and
-L<HTML::Mason::HTML::Mason> docs, I can say no. Our inline code must
+L<HTML::Mason|HTML::Mason> docs, I can say no. Our inline code must
 be much tighter. It must do no more than C<use>, C<new>, and C<$op>
 whatever C<$op> may be in this case. In other words it must be this:
 
@@ -73,6 +74,7 @@ whatever C<$op> may be in this case. In other words it must be this:
 which gives us an C<html::Greeting> module like this:
 
 <tt>pod_code 'Quickstart/html/Greeting.pm'</tt>
+
 
 =head1 Cleaning up our Perl class
 
