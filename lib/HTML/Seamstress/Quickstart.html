@@ -32,10 +32,22 @@
 		</ul>
 
 		<li><a href="#slow_and_clean_loom_building___pm_and__html_in_different_directory">Slow and clean LOOM building: .pm and .html in different directory</a></li>
+		<ul>
+
+			<li><a href="#slow_and_clean_has_extra_programming_advantages">Slow and clean has extra programming advantages</a></li>
+			<li><a href="#not_recommended_slow_clean_way__inline_the_html">Not recommended slow clean way: Inline the HTML</a></li>
+		</ul>
+
 	</ul>
 
 	<li><a href="#automated_creation_of_seamstressstyle_packages">Automated creation of Seamstress-style packages</a></li>
-	<li><a href="#use_subroutines_and_params__validate_to_componentize_your_operations">Use subroutines and Params::Validate to ``componentize'' your operations</a></li>
+	<li><a href="#tips_for_effective_seamstress_use">Tips for effective Seamstress use</a></li>
+	<ul>
+
+		<li><a href="#use_subroutines_and_params__validate_to_componentize_your_operations">Use subroutines and Params::Validate to ``componentize'' your operations</a></li>
+		<li><a href="#identify_html_elements_by_class_tags_if_you_plan_to_loop_them">Identify HTML elements by class tags if you plan to loop them</a></li>
+	</ul>
+
 	<li><a href="#copyright_and_license">COPYRIGHT AND LICENSE</a></li>
 </ul>
 <!-- INDEX END -->
@@ -181,7 +193,7 @@ application-level code? As the user of ultra-scaffolded frameworks
 such as <a href="/Class/DBI.html">Class::DBI</a> and <em>Catalyst</em>, I can say
 no. Our inline code must
 be much tighter. It must do no more than <code>use</code>, <code>new</code>, and <code>operation()</code>
-whatever <code>operation()</code> may be in this case.</p>
+whatever <code>operation()</code> may be.</p>
 <p>The key abstraction technique of the uber-modules is a
 package. Normally a package collects together a set of methods. In our
 case, it is collecting together an HTML file and the object-oriented
@@ -194,42 +206,9 @@ files.</p>
 way is to stick a <em>.pm</em> file in the same directory as the html
 file. This is fine for most purposes and is what I like to use.</p>
 <p>However in some cases it is not desirable or possible for the 
-HTML and Perl to be in the same directory. This is the non quick and
-dirty approach. There are two ways to be squeaky 
-clean as of this writing:</p>
-<ol>
-<li><strong><a name="item_provide_an_absolute_path_to_the_html">Provide an absolute path to the HTML</a></strong><br />
-</li>
-We will demonstrate this approach
-<p></p>
-<li><strong><a name="item_inline_the_html">Inline the HTML</a></strong><br />
-</li>
-There is no Seamstress API or utility support for this. But it is an
-idea and I just wanted to mention it for completeness. You can create
-a <em>.pm</em> with the HTML along the lines of this.
-<pre>
- package html::hello_world;</pre>
-<pre>
- sub new {...}</pre>
-<pre>
- sub process {...}</pre>
-<pre>
- __HTML__
- &lt;html&gt;
-  &lt;head&gt;
-    ...
-  &lt;/head&gt;
-  &lt;body&gt;
-    ...
-  &lt;/body&gt;</pre>
-<pre>
- &lt;/html&gt;</pre>
-<p>And then you could use <a href="/File/Slurp.html">File::Slurp</a> to read it in and 
-submit an appropriate <code>HTML::Seamstress::new_from_content()</code> method
-to do the proper blessings.</p>
-<p>But I don't like this approach. It makes it hard to stay synchronized
-with the designer as he continually makes updates.</p>
-<p></p></ol>
+HTML and Perl to be in the same directory. This is the slow and clean
+approach, which does have some additional advantages which will be
+discussed.</p>
 <p>
 </p>
 <h2><a name="quick_and_dirty_loom_building___pm_and__html_in_same_directory">Quick and dirty LOOM building: .pm and .html in same directory</a></h2>
@@ -436,6 +415,39 @@ than that, no changes:</p>
  print $tree-&gt;as_HTML(undef, ' ');</pre>
 <p>
 </p>
+<h3><a name="slow_and_clean_has_extra_programming_advantages">Slow and clean has extra programming advantages</a></h3>
+<p>Slow and clean is not just a different way to do the same
+thing. Because you have a base class that all of your</p>
+<p>
+</p>
+<h3><a name="not_recommended_slow_clean_way__inline_the_html">Not recommended slow clean way: Inline the HTML</a></h3>
+<p>There is no Seamstress API or utility support for this. But it is an
+idea and I just wanted to mention it for completeness. You can create
+a <em>.pm</em> with the HTML along the lines of this.</p>
+<pre>
+ package html::hello_world;</pre>
+<pre>
+ sub new {...}</pre>
+<pre>
+ sub process {...}</pre>
+<pre>
+ __HTML__
+ &lt;html&gt;
+  &lt;head&gt;
+    ...
+  &lt;/head&gt;
+  &lt;body&gt;
+    ...
+  &lt;/body&gt;</pre>
+<pre>
+ &lt;/html&gt;</pre>
+<p>And then you could use <a href="/File/Slurp.html">File::Slurp</a> to read it in and 
+submit an appropriate <code>HTML::Seamstress::new_from_content()</code> method
+to do the proper blessings.</p>
+<p>But I don't like this approach. It makes it hard to stay synchronized
+with the designer as he continually makes updates.</p>
+<p>
+</p>
 <hr />
 <h1><a name="automated_creation_of_seamstressstyle_packages">Automated creation of Seamstress-style packages</a></h1>
 <p>Instead of manually creating or copying and pasting packages to create
@@ -446,7 +458,10 @@ usage mode.</p>
 <p>
 </p>
 <hr />
-<h1><a name="use_subroutines_and_params__validate_to_componentize_your_operations">Use subroutines and Params::Validate to ``componentize'' your operations</a></h1>
+<h1><a name="tips_for_effective_seamstress_use">Tips for effective Seamstress use</a></h1>
+<p>
+</p>
+<h2><a name="use_subroutines_and_params__validate_to_componentize_your_operations">Use subroutines and Params::Validate to ``componentize'' your operations</a></h2>
 <p>The final phase in Seamstress best practices is to break each tree
 manipulation down into a separate subroutine whose parameters are
 specified by <a href="/Params/Validate.html">Params::Validate</a>.</p>
@@ -454,6 +469,26 @@ specified by <a href="/Params/Validate.html">Params::Validate</a>.</p>
 parameterizing your subs properly. This advice will make more
 sense as you do more complex things with Seamstress</p>
 <p>Now you're ready for the big time! Have fun!</p>
+<p>
+</p>
+<h2><a name="identify_html_elements_by_class_tags_if_you_plan_to_loop_them">Identify HTML elements by class tags if you plan to loop them</a></h2>
+<p>If your dummy HTML has a section which will be used as a sample and cloned
+repeatedly (either by you manually or by an 
+<a href="/HTML/Element/Library.html">HTML::Element::Library</a> method), then locate it
+by a <code>class</code> tag and do not assign it an <code>id</code> tag. This is because HTML
+becomes invalid when an id tag appears more than once in the same document.</p>
+<p>For example here is some <em>Template</em> code:</p>
+<pre>
+ [% FOR column = item.columns('view') %]
+    &lt;b class=&quot;title&quot;&gt;[% column %]&lt;/b&gt;&lt;br/&gt;
+    [% item.$column %]&lt;br/&gt;&lt;br/&gt;
+ [% END %]</pre>
+<p>Here is how I converted it to a Seamstress document:</p>
+<pre>
+ &lt;span class=&quot;columns_view&quot;&gt;
+    &lt;b class=&quot;title&quot;&gt;column_name&lt;/b&gt;&lt;br/&gt;
+    &lt;span class=&quot;item_column&quot;&gt;column_value&lt;/span&gt;&lt;br/&gt;&lt;br/&gt;
+ &lt;/span&gt;</pre>
 <p>
 </p>
 <hr />

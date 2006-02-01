@@ -143,7 +143,7 @@ application-level code? As the user of ultra-scaffolded frameworks
 such as L<Class::DBI|Class::DBI> and L<Catalyst|Catalyst>, I can say
 no. Our inline code must
 be much tighter. It must do no more than C<use>, C<new>, and C<operation()>
-whatever C<operation()> may be in this case. 
+whatever C<operation()> may be. 
 
 The key abstraction technique of the uber-modules is a
 package. Normally a package collects together a set of methods. In our
@@ -159,50 +159,10 @@ way is to stick a F<.pm> file in the same directory as the html
 file. This is fine for most purposes and is what I like to use.
 
 However in some cases it is not desirable or possible for the 
-HTML and Perl to be in the same directory. This is the non quick and
-dirty approach. There are two ways to be squeaky 
-clean as of this writing:
+HTML and Perl to be in the same directory. This is the slow and clean
+approach, which does have some additional advantages which will be
+discussed. 
 
-
-=over
-
-=item 1 Provide an absolute path to the HTML
-
-We will demonstrate this approach
-
-
-=item 2 Inline the HTML
-
-There is no Seamstress API or utility support for this. But it is an
-idea and I just wanted to mention it for completeness. You can create
-a F<.pm> with the HTML along the lines of this.
-
- package html::hello_world;
-
- sub new {...}
-
- sub process {...} 
-
- __HTML__
- <html>
-  <head>
-    ...
-  </head>
-  <body>
-    ...
-  </body>
-
- </html>
-
-And then you could use L<File::Slurp|File::Slurp> to read it in and 
-submit an appropriate C<HTML::Seamstress::new_from_content()> method
-to do the proper blessings.
-
-But I don't like this approach. It makes it hard to stay synchronized
-with the designer as he continually makes updates.
-
-
-=back
 
 
 =head2 Quick and dirty LOOM building: .pm and .html in same directory
@@ -428,6 +388,43 @@ than that, no changes:
  print $tree->as_HTML(undef, ' ');
 
 
+=head3 Slow and clean has extra programming advantages
+
+Slow and clean is not just a different way to do the same
+thing. Because you have a base class that all of your 
+
+=head3 Not recommended slow clean way: Inline the HTML
+
+There is no Seamstress API or utility support for this. But it is an
+idea and I just wanted to mention it for completeness. You can create
+a F<.pm> with the HTML along the lines of this.
+
+ package html::hello_world;
+
+ sub new {...}
+
+ sub process {...} 
+
+ __HTML__
+ <html>
+  <head>
+    ...
+  </head>
+  <body>
+    ...
+  </body>
+
+ </html>
+
+And then you could use L<File::Slurp|File::Slurp> to read it in and 
+submit an appropriate C<HTML::Seamstress::new_from_content()> method
+to do the proper blessings.
+
+But I don't like this approach. It makes it hard to stay synchronized
+with the designer as he continually makes updates.
+
+
+
 
 =head1 Automated creation of Seamstress-style packages
 
@@ -437,7 +434,9 @@ was off use. It is designed to help build the slow-clean LOOMs not the
 quick-and-dirty ones.... it really should be updated to support either
 usage mode.
 
-=head1 Use subroutines and Params::Validate to "componentize" your operations
+=head1 Tips for effective Seamstress use
+
+=head2 Use subroutines and Params::Validate to "componentize" your operations
 
 The final phase in Seamstress best practices is to break each tree
 manipulation down into a separate subroutine whose parameters are
@@ -448,6 +447,28 @@ parameterizing your subs properly. This advice will make more
 sense as you do more complex things with Seamstress
 
 Now you're ready for the big time! Have fun!
+
+=head2 Identify HTML elements by class tags if you plan to loop them
+
+If your dummy HTML has a section which will be used as a sample and cloned
+repeatedly (either by you manually or by an 
+L<HTML::Element::Library|HTML::Element::Library> method), then locate it
+by a C<class> tag and do not assign it an C<id> tag. This is because HTML
+becomes invalid when an id tag appears more than once in the same document.
+
+For example here is some L<Template|Template> code:
+
+ [% FOR column = item.columns('view') %]
+    <b class="title">[% column %]</b><br/>
+    [% item.$column %]<br/><br/>
+ [% END %]
+
+Here is how I converted it to a Seamstress document:
+
+ <span class="columns_view">
+    <b class="title">column_name</b><br/>
+    <span class="item_column">column_value</span><br/><br/>
+ </span>	
 
 
 =head1 COPYRIGHT AND LICENSE

@@ -32,7 +32,6 @@ lib/HTML/Seamstress/pod2htmi.tmp
 lib/HTML/Seamstress/Quickstart.html
 lib/HTML/Seamstress/Quickstart.pod
 lib/HTML/Seamstress/Quickstart.tt
-lib/HTML/Seamstress/Quickstart.tt-out
 lib/HTML/Seamstress/Quickstart/callGreeting.pl
 lib/HTML/Seamstress/Quickstart/callGreetingAbs.pl
 lib/HTML/Seamstress/Quickstart/greeting-seamstress-pure-mapped.pl
