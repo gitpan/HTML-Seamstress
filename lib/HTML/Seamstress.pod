@@ -78,6 +78,7 @@ take a look:
 
 =head3 Separate HTML development and its programmatic modification  
 
+Software engineers refer to this as B<orthogonality>.
 The contents of the document remain legal HTML/XML that can be be
 developed using standard interactive design tools. The flow of control
 of the code remains separate from the page. Technologies that mix
@@ -330,8 +331,11 @@ make good use of the paradigm.
 
 =head1 USAGE
 
-Now it's time to look at some examples. Before doing so, it is
-imperative that you understand the tree structure of HTML.
+The best example of usage is the F<Quickstart> directory in this
+distribution. You can read L<HTML::Seamstress::Quickstart> and
+actually run the code in that directory at the same time. After doing
+so, the following sections are additional instruction.
+
 
 =head2 Understand that HTML is a tree
 
@@ -609,6 +613,15 @@ timing of object creation.
 
 =head1 METHODS
 
+=head2 ->new_from_file()
+
+This does the same thing as the TreeBuilder C<new_from_file()> method,
+but it blesses the object into the invocant class. This makes the
+invocant class derive from Seamstress which means it has
+L<HTML::TreeBuilder|HTML::TreeBuilder>,
+L<HTML::Element|HTML::Element> , and
+L<HTML::Element::Library|HTML::Element::Library> at its disposal.
+
 =head2 ->html()
 
 This method takes C<__FILE__>, and optionally a desired C<$extension>
@@ -637,9 +650,8 @@ days in this thread!
 
 =head2 The disadvantages of mini-languages
 
+The disadvantages of mini-languages is discussed here:
 L<http://perlmonks.org/?node_id=428053>
-
-=head2 The limitations of mini-languages
 
 A striking example of the limitations of mini-languages is shown here:
 L<http://perlmonks.org/?node_id=493477>
@@ -659,6 +671,13 @@ opposed to mixing them occurs in the L<Text::Template> docs:
  crippled. If you need to do something the author hasn't thought of,
  you lose. Second: Who wants to learn another language? You already
  know Perl, so why not use it? 
+
+And for the Mason users whose retort is "we do use Perl!" the obvious
+reply is: "granted, but in an embedded fashion with ad hoc,
+inflexible object mechanisms, non-tree-based (hence syntactically
+suspect) HTML manipulation, and no ability to statically validate the
+Perl or HTML" 
+
 
 =head2 Problems with JSP (JSP is similar to HTML::Mason)
 
@@ -711,7 +730,12 @@ module.
 
 =back
 
-=head1 SUPPORT
+=head1 SUPPORT and DEVELOPMENT
+
+L<http://seamstress.sourceforge.net/> is the jumping-off page
+for all things Seamstress on the web.
+
+=head2 Mailing List
 
 L<http://lists.sourceforge.net/lists/listinfo/seamstress-discuss>
 
@@ -744,7 +768,14 @@ L<http://perlmonks.org/?node_id=505080>.
 
 =item * Matthew Hodgson (Arathorn on #catalyst) 
 
-for brainstorming with me on how to produce a Catalyst view for Seamstress
+for brainstorming with me on how to produce a Catalyst view 
+for Seamstress
+
+=item * Gary Ashton-Jones
+
+for a patch to spkg.pl and being the first person to join
+the C<seamstress-discuss> mailing list without any
+solicitation from me C<:)>.
 
 =back
 

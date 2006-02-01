@@ -1,3 +1,16 @@
+2006-01-31  metaperl  <metaperl@gmail.com>
+
+	* added a bless_tree routine to HTML::Seamstress. The idea is
+	this: if tree if composed of HTML::Element nodes, then they do not
+	have access to HTML::Element::Library and any
+	Local::Element::Library methods. Therefore new_from_file() now
+	blesses the whole tree, instead of just the root into the base
+	class. 
+
+2006-01-13  metaperl  <metaperl@gmail.com>
+
+	* applied diffs to spkg.pl supplied by Gary Ashton-Jones
+
 2003-12-15  U-MOKSHA\metaperl  <metaperl@urth.org>
 
 	* added samples/synopsis* to distro so that the SYNOPSIS is

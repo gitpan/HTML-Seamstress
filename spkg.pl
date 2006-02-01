@@ -118,11 +118,12 @@ our $tree;
 #%s
 
 
-$html = __PACKAGE__->html(__FILE__ => 'html') ;
+#$html = __PACKAGE__->html(__FILE__ => 'html') ;
+$html = __FILE__;
 
 sub new {
 #  my $file = __PACKAGE__->comp_root() . '%s' ;
-  my $file = $html;
+  my $file = __PACKAGE->html($html => 'html');
 
   -e $file or die "$file does not exist. Therefore cannot load";
 
@@ -162,8 +163,9 @@ EOTEMPLATE
 sub fill_template {
   my $template = template;
   sprintf $template,
+      $html_pkg,
       $cmdline,
-      $html_pkg, use_lib,
+      use_lib,
 	  use_base_qw, $base_pkg, $base_pkg,
 	      relpath_to_file
 

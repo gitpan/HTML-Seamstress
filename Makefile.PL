@@ -22,8 +22,9 @@ sub MY::postamble { q{
 
 
 docs: lib/HTML/Seamstress/Quickstart.tt-out
-	cp lib/HTML/Seamstress/Quickstart.tt-out lib/HTML/Seamstress/Quickstart.pod
-
+	cd lib/HTML/Seamstress; ./tt.pl Quickstart.tt
+	cd lib/HTML/Seamstress; cp Quickstart.tt-out Quickstart.pod
+	cd lib/HTML/Seamstress; pod2html Quickstart.pod > Quickstart.html
 
   };
 }

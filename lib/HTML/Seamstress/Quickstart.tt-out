@@ -66,12 +66,14 @@ here's the (admittedly verbose) pure TreeBuilder solution:
  print $tree->as_HTML(undef, ' ');
 
 
-There's a convenience function in L<HTML::Element::Library> which
+There's a convenience function in 
+L<HTML::Element::Library|HTML::Element::Library> which
 makes it easy to replace all the content of an element. This will make
 our script shorter. If we simply use Seamstress, its
 C<new_from_file()> method will bless the
 HTML tree into a class which inherits from HTML::Element::Library,
-making it easy for us to shorten our program.
+making it easy for us to shorten our program. So let's rework the
+example using bare-bones Seamstress.
 
 =head1 Base bones Seamstress rework
 
@@ -134,26 +136,78 @@ we will clean it up just a tad:
 
 
 
-=head1 abstract the file and our operations on it in a Perl class
+=head1 Abstract the file and our operations on it into a Perl LOOM
 
 Ok sweet, we have a nice tight program. But is this really
 application-level code? As the user of ultra-scaffolded frameworks
 such as L<Class::DBI|Class::DBI> and L<Catalyst|Catalyst>, I can say
-no. As one who has perused the L<Template|Template> and
-L<HTML::Mason::HTML::Mason> docs, I can say no. Our inline code must
-be much tighter. It must do no more than C<use>, C<new>, and C<$op>
-whatever C<$op> may be in this case. In other words it must be this:
+no. Our inline code must
+be much tighter. It must do no more than C<use>, C<new>, and C<operation()>
+whatever C<operation()> may be in this case. 
 
- use html::Greeting;
- 
- my $tree = html::Greeting->new;
- 
- $tree->process;
- 
- print $tree->as_HTML(undef, ' ');
+The key abstraction technique of the uber-modules is a
+package. Normally a package collects together a set of methods. In our
+case, it is collecting together an HTML file and the object-oriented
+operations on it. B<alert, alert: acronym, alert> from this point
+forward, a Perl class 
+abstracting a file and tree operations on the file will be called a
+I<LOOM> - (L)ibrary (O)f (O)bject-oriented (M)ethods for HTML
+files. 
+
+On the whole, there are two ways to build a C<LOOM>. The quick and dirty
+way is to stick a F<.pm> file in the same directory as the html
+file. This is fine for most purposes and is what I like to use.
+
+However in some cases it is not desirable or possible for the 
+HTML and Perl to be in the same directory. This is the non quick and
+dirty approach. There are two ways to be squeaky 
+clean as of this writing:
 
 
-which gives us an C<html::Greeting> module like this:
+=over
+
+=item 1 Provide an absolute path to the HTML
+
+We will demonstrate this approach
+
+
+=item 2 Inline the HTML
+
+There is no Seamstress API or utility support for this. But it is an
+idea and I just wanted to mention it for completeness. You can create
+a F<.pm> with the HTML along the lines of this.
+
+ package html::hello_world;
+
+ sub new {...}
+
+ sub process {...} 
+
+ __HTML__
+ <html>
+  <head>
+    ...
+  </head>
+  <body>
+    ...
+  </body>
+
+ </html>
+
+And then you could use L<File::Slurp|File::Slurp> to read it in and 
+submit an appropriate C<HTML::Seamstress::new_from_content()> method
+to do the proper blessings.
+
+But I don't like this approach. It makes it hard to stay synchronized
+with the designer as he continually makes updates.
+
+
+=back
+
+
+=head2 Quick and dirty LOOM building: .pm and .html in same directory
+
+We have an C<html::Greeting> module like this:
 
  package html::Greeting;
  
@@ -186,7 +240,20 @@ which gives us an C<html::Greeting> module like this:
  1;
 
 
-=head1 Cleaning up our Perl class
+which we make nice tight application-level use of like this:
+
+ use html::Greeting;
+ 
+ my $tree = html::Greeting->new;
+ 
+ $tree->process;
+ 
+ print $tree->as_HTML(undef, ' ');
+
+
+
+
+=head3 Cleaning up our Perl class
 
 We are flowing smoothly now with nice tight code in our
 application. But should we be happy with this module? I see a few
@@ -206,7 +273,7 @@ so we need an absolute path.
 
 Let's fix the first problem first.
 
-=head1 Make path to HTML file absolute
+=head3 Make path to HTML file absolute
 
 Again, Seamstress just happens to have a subroutine which guesses the
 name of the HTML file associated with a Seamstress-style Perl module.
@@ -276,13 +343,101 @@ and main code body is still the same:
 
 
 
+=head2 Slow and clean LOOM building: .pm and .html in different directory
+
+Here we need to slip a class in between C<HTML::Seamstress> and our
+LOOM:
+
+ package HTML::Seamstress::Base;
+ 
+ use base qw(HTML::Seamstress);
+ 
+ 
+ sub comp_root {
+   '/ernest/dev/seamstress/lib/HTML/Seamstress/Quickstart/html';
+ }
+ 
+ 1;
+ 
+
+
+This class will make it easy to track down the directory of our HTML
+files. 
+
+The LOOM class inherits from it and makes use of it in its
+constructor:
+
+ package html::Greeting;
+ 
+ use strict;
+ use warnings;
+ 
+ use base qw(HTML::Seamstress::Base); # not HTML::Seamstress!
+                                      # we need an intermediate base class
+                                      # with the comp_root() method so that
+                                      # we can get an absolute path to the 
+                                      # HTML file... remember this is an
+                                      # example where the LOOM is in a 
+                                      # different directory to the the HTML
+                                      # file it operates on.
+ 
+ 
+ sub new {
+   my $comp_root = __PACKAGE__->comp_root();
+   my $html_file = "$comp_root/greeting.html";
+   warn "html_file: $html_file";
+   my $tree  = __PACKAGE__->new_from_file($html_file);
+   $tree;
+ }
+ 
+ 
+ sub process {
+   
+   my $tree = shift;
+ 
+   my %replace = (
+     name         => 'Slow Clean Greeting Machine',
+     lucky_number => 737
+    );
+ 
+   $tree->look_down(id => $_)->replace_content($replace{$_})
+     for (keys %replace) ;
+ }
+ 
+ 
+ 1;
+
+
+And out main body code is just as tight. We have a few statements to
+make sure to use the right version of C<html::Greeting>, but other
+than that, no changes:
+
+ use lib 'lib';
+ use html::Greeting;
+ 
+ use Data::Dumper;
+ 
+ print Dumper \%INC; # shows we are using the hhtml::Greeting which
+                     # obtains its file via HTML::Seamstress::Base::comp_root()
+                     # instead of via __PACKAGE__->html( )
+ 
+ my $tree = html::Greeting->new;
+ 
+ $tree->process;
+ 
+ print $tree->as_HTML(undef, ' ');
+
+
+
 =head1 Automated creation of Seamstress-style packages
 
 Instead of manually creating or copying and pasting packages to create
 Seamstress-style packages, the F<spkg.pl> script in the Seamstress
-distribution can be of use. But I won't discuss it now.
+was off use. It is designed to help build the slow-clean LOOMs not the
+quick-and-dirty ones.... it really should be updated to support either
+usage mode.
 
-=head1 use subroutines and Params::Validate to "componentize" your operations
+=head1 Use subroutines and Params::Validate to "componentize" your operations
 
 The final phase in Seamstress best practices is to break each tree
 manipulation down into a separate subroutine whose parameters are

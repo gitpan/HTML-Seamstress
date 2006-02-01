@@ -6,24 +6,44 @@ use warnings;
 use Carp qw(confess);
 use Cwd;
 use Data::Dumper;
+use File::Slurp;
 use File::Spec;
-use HTML::Element::Library;
-use Scalar::Listify;
 
 
-use base qw/HTML::TreeBuilder HTML::Element HTML::Element::Library/;
+
+use base qw/HTML::Element::Library HTML::TreeBuilder HTML::Element/;
 
 
-our ($VERSION) = ('$Revision: 3.8 $' =~ m/([\.\d]+)/) ;
+our $VERSION = 4.2 ;
+
+
+sub bless_tree {
+
+  my ($node, $class) = @_;
+
+
+  if (ref $node) {
+ #   warn "root node($class): ", $node->as_HTML;
+    bless $node, $class ;
+
+    foreach my $c ($node->content_list) {
+      bless_tree($c, $class);
+    }
+  }
+}
+
 
 
 sub new_from_file { # or from a FH
+
   my ($class, $file) = @_;
 
-  warn $file;
 
   my $new = HTML::TreeBuilder->new_from_file($file);
-  bless $new, $class;
+  bless_tree($new, $class);
+#  warn "here is new: $new ", $new->as_HTML;
+  $new;
+
 }
 
 
