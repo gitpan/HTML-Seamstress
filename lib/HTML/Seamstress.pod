@@ -76,6 +76,56 @@ common to a subclass of L<HTML::Tree>.
 What advantages does this fourth way of HTML manipulation offer? Let's
 take a look:
 
+=head3 Guarantee yourself well-formed HTML
+
+Because lower-generation dynamic HTML generators treat HTML as a
+string, there is no insurance against poorly formed HTML.
+
+Take a look at these two Mason components, from
+L<http://masonbook.com/book/chapter-5.mhtml#TOC-ANCHOR-5> :
+
+=over 
+
+=item * Example 5-3. /autohandler
+
+  <html>
+  % $m->call_next;
+  </html>
+  <%method .body_tag>
+   <%args>
+    $bgcolor => 'white'
+    $textcolor => 'black'
+   </%args>
+   <body onLoad="prepare_images( )" bgcolor="<% $bgcolor %>" text="<% $textcolor %>">
+  </%method>
+
+=item * Example 5-4. /important_advice.mas
+
+  <head><title>A Blue Page With Red Text</title></head>
+  
+  <& SELF:.body_tag, bgcolor=>'blue', textcolor=>'red' &>
+   Never put anything bigger than your elbow into your ear.
+  </body>
+
+=back
+
+There is nothing guaranteeing that open tags will match close tags or
+that close tags will even exist. 
+To make the correspondence between open and close tags even more troublesome,
+they are in different files. And it is not easy for an HTML designer and/or
+design tool to manipulate things once they have been shredded apart
+like this. 
+
+
+With the tree-based approach of Seamstress, the end tag will exist
+and it will match the open tag. Well-formedness is job 1 in tree-based
+HTML rewriting!
+
+
+
+
+=head4 HTML will be properly escaped
+
 =head3 Separate HTML development and its programmatic modification  
 
 Software engineers refer to this as B<orthogonality>.
