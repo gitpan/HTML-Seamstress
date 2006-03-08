@@ -161,10 +161,151 @@ Perl and HTML are solid technologies with years of effort behind
 making them robust and flexible enough to meet real-world
 technological demands.
 
-=head3 Multiple views and reuses of the same element
+=head3 Object-oriented reuse and extension of HTML
 
-Because manipulator and manipulated are separate, we can choose
-manipulators and/or stack them at will.
+Class-based object-oriented programming makes use of inheritance and
+other  techniques to achieve maximum code reuse. This typically
+happens by a certain base/superclass method containing common actions
+and a derived/subclass/mixin method containing extra actions.
+
+A genuine tree-based approach (such as HTML::Seamstress) to HTML
+generation is supportive of all methods of object-oriented reuse: 
+because manipulator and manipulated are separate and manipulators are
+written in oo Perl, we can compose manipulators as we please.
+
+This is in contrast to inline simple object systems (as in Mason) and
+also in contrast to the if-then approach of tt-esque systems.
+
+=head4 Per-page stereotyped substitution
+
+[ FYI: you can run the two Seamstress approaches. They are in 
+F<$DISTRO/samples/perpage> ]
+
+In the HTML::Mason book by O'Reilly:
+L<http://masonbook.com/book/chapter-1.mhtml#TOC-ANCHOR-4>
+
+we see a technique for doing simple text insertion which varies per
+page:
+
+ <html>
+  <head><title>Welcome to Wally World!</title></head>
+  <body bgcolor="#CCFFCC">
+  <center><h1><% $m->base_comp->attr('head') %></h1></center>
+  % $m->call_next;
+  <center><a href="/">Home</a></center>
+  </body></html>
+
+ # homepage.html
+ <%attr>
+   head => "Wally World Home"
+ </%attr>
+  Here at Wally World you'll find all the finest accoutrements.
+
+ # productpage.html
+ <%attr>
+   head => "Wally World Products"
+ </%attr>
+  
+ <table> ... </table>
+
+So, how would we do this using Seamstress' pure Perl approach to HTML
+refinement? 
+
+ 
+ <html>
+  <head><title>Welcome to Wally World!</title></head>
+  <body bgcolor="#CCFFCC">
+  <center><h1 id=head>DUMMY_HEAD</h1></center>
+  <span id=body>DUMMY_BODY</span>
+  <center><a href="/">Home</a></center>
+  </body></html>
+
+ # homepage.pm
+ package html::homepage;
+
+ use base qw( HTML::Seamstress ) ;
+
+ sub new {
+  my ($class, $c) = @_;
+
+  my $html_file = 'html/base.html';
+
+  my $tree = __PACKAGE__->new_from_file($html_file);
+
+  $tree;
+ }
+
+ sub process {
+  my ($tree, $c, $stash) = @_;
+
+  $tree->content_handler(head => 'Wally World Home');
+  $tree->content_handler(body => 
+   'Here at Wally World you'll find all the finest accoutrements.');
+ }
+
+ # productpage.pm
+ package html::productpage;
+
+ use base qw( HTML::Seamstress ) ;
+
+ sub new {
+  my ($class, $c) = @_;
+
+  my $html_file = 'html/base.html';
+
+  my $tree = __PACKAGE__->new_from_file($html_file);
+
+  $tree;
+ }
+
+ sub process {
+  my ($tree, $c, $stash) = @_;
+
+  $tree->content_handler(head => 'Wally World Products);
+  $tree->content_handler(body => html::productpage::body->new->guts)
+ }
+
+We have solved our problem. However, we can create even more re-use
+because the both of these classes are very similar. They only vary in
+2 things: the particular head and body they provide.
+You can abstract this with whatever methodmaker you like. I tend to
+prefer prototype-based oop 
+over class-based, so with L<Class::Prototyped|Class::Prototyped>,
+here's how we might do it:
+
+ package html::abstract::common;
+
+ use base qw(HTML::Seamstress Class::Prototyped);
+
+
+ sub head { 'ABSTRACT BASE METHOD' }
+ sub body { 'ABSTRACT BASE METHOD' }
+
+ __PACKAGE__->reflect->addSlots(
+  html_file => 'html/base.html',
+ );
+
+ sub new {
+  my $self = shift;
+
+  my $tree = $self->new_from_file($self->html_file);
+ }
+
+ sub process {   
+  my ($tree, $c, $stash) = @_;
+  $tree->content_handler(head => $tree->head);
+  $tree->content_handler(body => $tree->body);
+ }
+
+ 1;
+
+and then have both of the above classes instantiate and 
+specialize this common class accordingly.
+     
+[ Again: you can run the two Seamstress approaches. They are in 
+F<$DISTRO/samples/perpage> ]
+
+
 
 =head3 Parallel generation of a single page natural
 
@@ -827,12 +968,25 @@ for a patch to spkg.pl and being the first person to join
 the C<seamstress-discuss> mailing list without any
 solicitation from me C<:)>.
 
+=item * Brock Wilcox
+
+for ramming heads with me over possibly using CSS to specify tree 
+rewrite actions:
+
+sub fix_age : ID(age) {
+
+   (shift)->replace_content(shift()) ;
+
+}
+
+Just an idea...
+
 =back
 
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2002-2005 by Terrence Brannon.
+Copyright 1999-2006 by Terrence Brannon.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

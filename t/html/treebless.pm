@@ -23,7 +23,7 @@ $html = __FILE__;
 
 sub new {
 #  my $file = __PACKAGE__->comp_root() . 'html/treebless.html' ;
-  my $file = __PACKAGE->html($html => 'html');
+  my $file = __PACKAGE__->html($html => 'html');
 
   -e $file or die "$file does not exist. Therefore cannot load";
 
