@@ -1,0 +1,13 @@
+#!/bin/bash -x
+
+rm *.tar.gz
+perl Makefile.PL
+make
+make test
+make docs
+make manifest
+
+make tardist
+
+upload-cpan.pl *.tar.gz
+
