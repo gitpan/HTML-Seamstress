@@ -12,7 +12,7 @@ warn "ROOT: $root";
 
 my @html = glob 't/html/*.html';
 system 
-    "./spkg.pl --base_pkg_root=$root $_"
+    "./spkg.pl --base_pkg_root=$root --base_pkg=html::Seamstress::Base $_"
     for @html;
 
 ok 1;

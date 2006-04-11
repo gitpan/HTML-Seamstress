@@ -136,6 +136,18 @@ content and data in a single file result in code that is often
 difficult to understand and has trouble taking full advantage of the
 object oriented programming paradigm.  
 
+=head3 Work at meta-level instead of object-level
+
+The book "Godel, Escher, Bach: An Eternal Golden Braid" by  Douglas R
+Hofstadter makes it clear what it means to operate at object-level as
+opposed to meta-level. When you buy into earlier-generation HTML
+generation systems you are working at object-level: you can only speak
+and act I<as> the HTML with no ability to speak I<about> the HTML. 
+
+Compare a bird's eye view of a city with standing on a city block and
+you have the difference between the 4th generation of HTML development
+versus all prior generations.
+
 
 =head3 Reduced learning curve
 

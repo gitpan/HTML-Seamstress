@@ -2,13 +2,13 @@ ChangeLog
 ctb/chdir.pl
 ctb/dest.pl
 ctb/dest2.pl
-ctb/html/hello_world.html
-ctb/html/hello_world.pm
+ctb/HTML/hello_world.html
+ctb/HTML/hello_world.pm
 ctb/HTML/Seamstress/Base.pm
-ctb/html/tmp.html
-ctb/html/todo
-ctb/html/x/hello_world.html
-ctb/html/x/hello_world.pm
+ctb/HTML/tmp.html
+ctb/HTML/todo
+ctb/HTML/x/hello_world.html
+ctb/HTML/x/hello_world.pm
 ctb/map.pl
 ctb/small-ret.pl
 ctb/small.pl
@@ -47,7 +47,7 @@ lib/HTML/Seamstress/Quickstart/html/GreetingAbs.html
 lib/HTML/Seamstress/Quickstart/html/GreetingAbs.pm
 lib/HTML/Seamstress/Quickstart/html/menu.html
 lib/HTML/Seamstress/Quickstart/html/tmp
-lib/HTML/Seamstress/Quickstart/lib/html/Greeting.pm
+lib/HTML/Seamstress/Quickstart/lib/HTML/Greeting.pm
 lib/HTML/Seamstress/Quickstart/lib/HTML/Seamstress/Base.pm
 lib/HTML/Seamstress/Quickstart/slowClean.pl
 lib/HTML/Seamstress/tt.pl
@@ -100,7 +100,7 @@ t/html/highlander-50.exp
 t/html/highlander-50.gen
 t/html/highlander.html
 t/html/highlander.pm
-t/HTML/Seamstress/Base.pm
+t/html/Seamstress/Base.pm
 t/html/treebless.html
 t/html/treebless.pm
 t/TestUtils.pm

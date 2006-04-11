@@ -1,6 +1,6 @@
 package html::highlander;
 
-# cmdline: ./spkg.pl --base_pkg_root=/media/usb0/dev/seamstress/t/ t/html/highlander.html
+# cmdline: ./spkg.pl --base_pkg_root=/home/Administrator/dev/seamstress/t/ --base_pkg=html::Seamstress::Base t/html/highlander.html
 
 use strict;
 use warnings;
@@ -8,14 +8,14 @@ use warnings;
 use base qw(Class::Prototyped HTML::Seamstress);
 
 
-use lib '/media/usb0/dev/seamstress/t/';
-use base qw(HTML::Seamstress::Base); 
+use lib '/home/Administrator/dev/seamstress/t/';
+use base qw(html::Seamstress::Base); 
 use vars qw($html);
 
 our $tree;
 
-#warn HTML::Seamstress::Base->comp_root(); 
-#HTML::Seamstress::Base
+#warn html::Seamstress::Base->comp_root(); 
+#html::Seamstress::Base
 
 
 #$html = __PACKAGE__->html(__FILE__ => 'html') ;
