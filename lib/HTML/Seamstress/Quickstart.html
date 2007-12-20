@@ -1,8 +1,10 @@
+<?xml version="1.0" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>HTML::Seamstress::Quickstart - A gentle introduction to HTML::Seamstress</title>
-<link rev="made" href="mailto:gerrit@familiehaase.de" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:rurban@x-ray.at" />
 </head>
 
 <body style="background-color: white">
@@ -259,14 +261,14 @@ discussed.</p>
 application. But should we be happy with this module? I see a few
 drawbacks which require improvement:</p>
 <ul>
-<li><strong><a name="item_our_file_name_is_given_as_a_relative_path_name">our file name is given as a relative path name</a></strong><br />
-</li>
-Relative paths are fine as long as we are certain to start in the same
+<li><strong><a name="item_our_file_name_is_given_as_a_relative_path_name">our file name is given as a relative path name</a></strong>
+
+<p>Relative paths are fine as long as we are certain to start in the same
 directory, but we cannot be sure of that when building applications,
-so we need an absolute path.
-<p></p>
-<li><strong><a name="item_we_had_to_manually_create_this_package">we had to manually create this package</a></strong><br />
+so we need an absolute path.</p>
 </li>
+<li><strong><a name="item_we_had_to_manually_create_this_package">we had to manually create this package</a></strong>
+
 </ul>
 <p>Let's fix the first problem first.</p>
 <p>
@@ -341,7 +343,7 @@ to our file in absolute fashion:</p>
 <p>Here we need to slip a class in between <code>HTML::Seamstress</code> and our
 LOOM:</p>
 <pre>
- package HTML::Seamstress::Base;
+ package Local::Seamstress::Base;
  
  use base qw(HTML::Seamstress);
  
@@ -361,7 +363,7 @@ constructor:</p>
  use strict;
  use warnings;
  
- use base qw(HTML::Seamstress::Base); # not HTML::Seamstress!
+ use base qw(Local::Seamstress::Base); # not HTML::Seamstress!
                                       # we need an intermediate base class
                                       # with the comp_root() method so that
                                       # we can get an absolute path to the 
@@ -417,7 +419,16 @@ than that, no changes:</p>
 </p>
 <h3><a name="slow_and_clean_has_extra_programming_advantages">Slow and clean has extra programming advantages</a></h3>
 <p>Slow and clean is not just a different way to do the same
-thing. Because you have a base class that all of your</p>
+thing. By creating a local base class, you have full control over how
+to connect an HTML file to your Perl code.</p>
+<p>Your HTML designer can have his files mounted elsewhere. And you dont</p>
+<ul>
+<li><strong><a name="item_infect_his_directory_with_your__2epm_files__3ditem">infect his directory with your <code>.pm</code> files
+=item * infect his HTML with all sorts of dynamic HTML logic</a></strong>
+
+</ul>
+<p>And being infection-free is the way I like it.. in Perl and uhhh... other
+endeavors.</p>
 <p>
 </p>
 <h3><a name="not_recommended_slow_clean_way__inline_the_html">Not recommended slow clean way: Inline the HTML</a></h3>

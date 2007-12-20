@@ -158,7 +158,21 @@ than that, no changes:
 =head3 Slow and clean has extra programming advantages
 
 Slow and clean is not just a different way to do the same
-thing. Because you have a base class that all of your 
+thing. By creating a local base class, you have full control over how
+to connect an HTML file to your Perl code.
+
+Your HTML designer can have his files mounted elsewhere. And you dont 
+
+=over 4
+
+=item * infect his directory with your C<.pm> files
+=item * infect his HTML with all sorts of dynamic HTML logic
+
+=back
+
+And being infection-free is the way I like it.. in Perl and uhhh... other
+endeavors.
+
 
 =head3 Not recommended slow clean way: Inline the HTML
 

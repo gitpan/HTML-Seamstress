@@ -993,6 +993,10 @@ sub fix_age : ID(age) {
 
 Just an idea...
 
+=item * Ian Tegebo
+
+For noticing some doc bugs in the Quickstart guide.
+
 =back
 
 

@@ -308,7 +308,7 @@ and main code body is still the same:
 Here we need to slip a class in between C<HTML::Seamstress> and our
 LOOM:
 
- package HTML::Seamstress::Base;
+ package Local::Seamstress::Base;
  
  use base qw(HTML::Seamstress);
  
@@ -332,7 +332,7 @@ constructor:
  use strict;
  use warnings;
  
- use base qw(HTML::Seamstress::Base); # not HTML::Seamstress!
+ use base qw(Local::Seamstress::Base); # not HTML::Seamstress!
                                       # we need an intermediate base class
                                       # with the comp_root() method so that
                                       # we can get an absolute path to the 
@@ -391,7 +391,21 @@ than that, no changes:
 =head3 Slow and clean has extra programming advantages
 
 Slow and clean is not just a different way to do the same
-thing. Because you have a base class that all of your 
+thing. By creating a local base class, you have full control over how
+to connect an HTML file to your Perl code.
+
+Your HTML designer can have his files mounted elsewhere. And you dont 
+
+=over 4
+
+=item * infect his directory with your C<.pm> files
+=item * infect his HTML with all sorts of dynamic HTML logic
+
+=back
+
+And being infection-free is the way I like it.. in Perl and uhhh... other
+endeavors.
+
 
 =head3 Not recommended slow clean way: Inline the HTML
 

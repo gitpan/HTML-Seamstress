@@ -3,7 +3,7 @@ package html::Greeting;
 use strict;
 use warnings;
 
-use base qw(HTML::Seamstress::Base); # not HTML::Seamstress!
+use base qw(Local::Seamstress::Base); # not HTML::Seamstress!
                                      # we need an intermediate base class
                                      # with the comp_root() method so that
                                      # we can get an absolute path to the 

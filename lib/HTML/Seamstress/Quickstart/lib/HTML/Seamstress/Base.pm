@@ -1,4 +1,4 @@
-package HTML::Seamstress::Base;
+package Local::Seamstress::Base;
 
 use base qw(HTML::Seamstress);
 
