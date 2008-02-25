@@ -4,67 +4,100 @@ HTML::Seamstress - HTML::Tree subclass for HTML templating via tree rewriting
 
 =head1 SYNOPSIS
 
-HTML::Seamstress provides "fourth generation" dynamic HTML generation
-(templating). 
-
-In the beginning we had...
 
 
-=head2 First generation dynamic HTML production
+=head2 Text substitution via replace_content() API call.
 
-First generation dynamic HTML production used server-side
-includes:
+In our first example, we want to perform simple text substitution on
+the HTML template document. The HTML file html/hello_world.htm has
+klass attributes which serve as compiler (kompiler?) hints to Seamstress:
 
- <p>Today's date is   <!--#echo var="DATE_LOCAL" --> </p>
+ <html>
+ <head>
+   <title>Hello World</title>
+ </head>
+ <body>
+ <h1>Hello World</h1>
+   <p>Hello, my name is <span id="name">dummy_name</span>.
+   <p>Today's date is <span id="date">dummy_date</span>.
+ </body>
+ </html>
 
-=head2 Second generation dynamic HTML production
+=head3 Seamstress compiles HTML to C<html::hello_world>
 
-The next phase of HTML generation saw
-embedded HTML snippets in Perl code. For example:
+ shell> seamc html/hello_world.htm
+ Seamstress v2.91 generating html::hello_world from html/hello_world.htm
 
- sub header {
-   my $title = shift;
-   print <<"EOHEADER";
-   <head>
-      <title>$title</title>
-   </head>
-   EOHEADER
- }
+Now you simply use the "compiled" version of HTML with API calls to
+HTML::TreeBuilder, HTML::Element, and HTML::Element::LIbrary
 
-=head2 Third generation dynamic HTML production
+ use html::hello_world; 
+ 
+ my $tree = html::hello_world->new; 
+ $tree->look_down(id => name)->replace_content('terrence brannon');
+ $tree->look_down(id => date)->replace_content('5/11/1969');
+ print $tree->as_HTML;
 
-The 3rd generation solutions embed
-programming language constructs with HTML. The language constructs
-are either a real language (as is with L<HTML::Mason>) or a
-pseudo/mini-language (as is with L<PeTaL>, L<Template> or
-L<HTML::Template>). Let's see some L<Template> code:
+=head2 If-then-else with the highlander API call
 
- <p>Hi there [% name %], are you enjoying your stay?</p>
 
-=head2 Talkin' bout them generations...
+ <span id="age_dialog">
+    <span id="under10">
+       Hello, does your mother know you're 
+       using her AOL account?
+    </span>
+    <span id="under18">
+       Sorry, you're not old enough to enter 
+       (and too dumb to lie about your age)
+    </span>
+    <span id="welcome">
+       Welcome
+    </span>
+ </span>
 
-Up to now, all approaches to this issue tamper with the
-HTML in some form or fashion:
+
+=head3 Compile and use the module:
+
+ use html::age_dialog;
+
+ my $tree = html::dialog->new;
+
+ $tree->highlander
+    (age_dialog =>
+     [
+      under10 => sub { $_[0] < 10} , 
+      under18 => sub { $_[0] < 18} ,
+      welcome => sub { 1 }
+     ],
+     $age
+    );
+
+  print $tree->as_HTML;
+
+  # will only output one of the 3 dialogues based on which closure 
+  # fires first	
+
+
+The following libraries are always available for more complicated
+manipulations:
 
 =over 
 
-=item * Generation 1 adds SSI processing instructions
+=item * L<HTML::ElementTable>
 
-=item * Generation 2 rips the HTML apart and adds programming elements
+=item * L<HTML::Element::Library>
 
-=item * Generation 3 sprinkles programming constructs in the HTML
+=item * L<HTML::Element>
+
+=item * L<HTML::Tree>
 
 =back
 
-=head2 Enter fourth generation dynamic HTML production
 
-The fourth generation of HTML production is distinguished by no need
-for tampering with the HTML. There are a wealth of XML-based modules
-which provide this approach (L<XML::Twig>, L<XML::LibXML>,
-L<XML::TreeBuilder>, L<XML::DOM>). HTML::Seamstress is the one CPAN
-module based around HTML and L<HTML::Tree> for this approach.
 
 =head1 PHILOSOPHY and MOTIVATION of HTML::Seamstress
+
+Welcome to push-style dynamic HTML generation!
 
 When looking at HTML::Seamstress, we are looking at a uniquely
 positioned 4th-generation HTML generator. Seamstress offers two sets
@@ -831,6 +864,69 @@ This method takes C<__FILE__>, and optionally a desired C<$extension>
 (defaults to 'html' if not given) and
 changes the extension on C<__FILE__> from C<.pm> to C<$extension>.
 This works well for common situations. 
+
+=head1 A BRIEF HISTORY of Dynamic HTML Generation (Templating)
+
+HTML::Seamstress provides "fourth generation" dynamic HTML generation
+(templating). 
+
+In the beginning we had...
+
+
+=head2 First generation dynamic HTML production
+
+First generation dynamic HTML production used server-side
+includes:
+
+ <p>Today's date is   <!--#echo var="DATE_LOCAL" --> </p>
+
+=head2 Second generation dynamic HTML production
+
+The next phase of HTML generation saw
+embedded HTML snippets in Perl code. For example:
+
+ sub header {
+   my $title = shift;
+   print <<"EOHEADER";
+   <head>
+      <title>$title</title>
+   </head>
+   EOHEADER
+ }
+
+=head2 Third generation dynamic HTML production
+
+The 3rd generation solutions embed
+programming language constructs with HTML. The language constructs
+are either a real language (as is with L<HTML::Mason>) or a
+pseudo/mini-language (as is with L<PeTaL>, L<Template> or
+L<HTML::Template>). Let's see some L<Template> code:
+
+ <p>Hi there [% name %], are you enjoying your stay?</p>
+
+=head2 Talkin' bout them generations...
+
+Up to now, all approaches to this issue tamper with the
+HTML in some form or fashion:
+
+=over 
+
+=item * Generation 1 adds SSI processing instructions
+
+=item * Generation 2 rips the HTML apart and adds programming elements
+
+=item * Generation 3 sprinkles programming constructs in the HTML
+
+=back
+
+=head2 Enter fourth generation dynamic HTML production
+
+The fourth generation of HTML production is distinguished by no need
+for tampering with the HTML. There are a wealth of XML-based modules
+which provide this approach (L<XML::Twig>, L<XML::LibXML>,
+L<XML::TreeBuilder>, L<XML::DOM>). HTML::Seamstress is the one CPAN
+module based around HTML and L<HTML::Tree> for this approach.
+
 
 
 =head1 SEE ALSO

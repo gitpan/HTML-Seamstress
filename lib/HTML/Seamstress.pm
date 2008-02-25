@@ -14,7 +14,7 @@ use File::Spec;
 use base qw/HTML::Element::Library HTML::TreeBuilder HTML::Element/;
 
 
-our $VERSION = 4.28 ;
+our $VERSION = '5.0a' ;
 
 
 sub bless_tree {
