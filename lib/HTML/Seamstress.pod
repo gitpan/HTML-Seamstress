@@ -104,6 +104,20 @@ positioned 4th-generation HTML generator. Seamstress offers two sets
 of advantages: those common to all 4th generation htmlgens and those
 common to a subclass of L<HTML::Tree>.
 
+
+
+I think a Perlmonks node:
+L<http://perlmonks.org/?node_id=669956|http://perlmonks.org/?node_id=669956>
+sums up the job of Seamstress quite well:
+
+    Monks,
+
+    I'm tired of writing meta code in templating languages.
+    I'm really good at writing Perl, and good at writing HTML, 
+    but I'm lousy at the templating languages (and I'm not too 
+    fired up to learn more about them).
+
+
 =head2 Reap 4th generation dynamic HTML generation benefits
 
 What advantages does this fourth way of HTML manipulation offer? Let's
@@ -931,6 +945,51 @@ module based around HTML and L<HTML::Tree> for this approach.
 
 =head1 SEE ALSO
 
+=head2 Similar Frameworks 
+
+I created a node at Perlmonks which catalogues push-style templating systems
+both in and outside of Perl:
+
+L<http://perlmonks.org/?node_id=674225|http://perlmonks.org/?node_id=674225>
+
+
+
+=over
+
+=item * L<Template::Recall>
+
+The author uses what he called "reverse callbacks" to create a style very
+similar to Seamstress.
+
+=item * L<Petal>
+
+Based on Zope's TAL, this is a very nice and complete framework that is
+the basis of MkDoc, a XML application server. It offers a
+mini-language for XML rewriting, Seamstress does not. The philosophy
+of the Seamstress is the orthogonal integration of Perl and HTML not a
+mini-language and HTML.
+
+=item * L<XML::LibXML>
+
+By the XML guru Matt Sergeant, who is also the author of AxKit, another XML 
+application server. This offers XPath for finding nodes
+
+=item * L<XML::DOM>
+
+If I wanted to ape XMLC entirely, I would have used TJ Mather's
+L<XML::DOM>. Because XMLC is based around DOM API calls. However,
+TreeBuilder is very handy and has a lot of nice libraries around it
+such L<HTML::PrettyPrinter>. The biggest win of XML::DOM is it's easy
+integration with L<XML::Generator>
+
+From the docs, it looks like L<XML::GDOME> is the successor to this
+module.
+
+
+=back
+
+
+
 =head2 HTML Templating as Tree Rewriting: Part I: "If Statements"
 
 L<http://perlmonks.org/index.pl?node_id=302606>
@@ -990,44 +1049,17 @@ L<http://www.theserverside.com/resources/article.jsp?l=XMLCvsJSP>
 
 L<http://www.metaperl.com>
 
-=head2 XMLC, A similar framework for Java
+=head2 Similar frameworks in other languages
+
 
 L<http://xmlc.enhydra.org>
 
-=head2 Similar Frameworks for Perl 
-
-Two other frameworks come to mind. Both are stricter with regard
-to the correctness of the HTML and both use a different means for 
-node lookup and rewrite.
+L<http://www.plope.com/software/meld3>
 
 
-=over
 
-=item * L<Petal>
 
-Based on Zope's TAL, this is a very nice and complete framework that is
-the basis of MkDoc, a XML application server. It offers a
-mini-language for XML rewriting, Seamstress does not. The philosophy
-of the Seamstress is the orthogonal integration of Perl and HTML not a
-mini-language and HTML.
 
-=item * L<XML::LibXML>
-
-By the XML guru Matt Sergeant, who is also the author of AxKit, another XML 
-application server. This offers XPath for finding nodes
-
-=item * L<XML::DOM>
-
-If I wanted to ape XMLC entirely, I would have used TJ Mather's
-L<XML::DOM>. Because XMLC is based around DOM API calls. However,
-TreeBuilder is very handy and has a lot of nice libraries around it
-such L<HTML::PrettyPrinter>. The biggest win of XML::DOM is it's easy
-integration with L<XML::Generator>
-
-From the docs, it looks like L<XML::GDOME> is the successor to this
-module.
-
-=back
 
 =head1 SUPPORT and DEVELOPMENT
 

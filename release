@@ -11,3 +11,5 @@ make tardist
 
 upload-cpan.pl *.tar.gz
 
+hg commit -m "`grep 'VERSION =' lib/HTML/Seamstress.pm`"
+hg push

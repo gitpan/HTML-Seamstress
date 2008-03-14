@@ -6,6 +6,7 @@
 .hg/requires
 .hg/store/00changelog.i
 .hg/store/00manifest.i
+.hg/store/data/.hgignore.i
 .hg/store/data/_change_log.i
 .hg/store/data/_m_a_n_i_f_e_s_t.i
 .hg/store/data/_m_e_t_a.yml.i
@@ -66,6 +67,14 @@
 .hg/store/data/lib/_x_m_l/_seamstress.pm.i
 .hg/store/data/pmpost/class-cache.html.i
 .hg/store/data/release.i
+.hg/store/data/samples/perlmonks-battle/_model.pm.i
+.hg/store/data/samples/perlmonks-battle/_r_e_a_d_m_e.i
+.hg/store/data/samples/perlmonks-battle/_view/bullet.pm.i
+.hg/store/data/samples/perlmonks-battle/_view/bullet/text.pm.i
+.hg/store/data/samples/perlmonks-battle/_view/table.pm.i
+.hg/store/data/samples/perlmonks-battle/html/bullet.html.i
+.hg/store/data/samples/perlmonks-battle/html/table.html.i
+.hg/store/data/samples/perlmonks-battle/run.pl.i
 .hg/store/data/samples/perpage/_r_e_a_d_m_e.i
 .hg/store/data/samples/perpage/ago.pl.i
 .hg/store/data/samples/perpage/go.pl.i
@@ -115,6 +124,7 @@
 .hg/store/data/todo.i
 .hg/store/undo
 .hg/undo.dirstate
+.hgignore
 ChangeLog
 ctb/chdir.pl
 ctb/dest.pl
@@ -175,6 +185,14 @@ META.yml
 pmpost/class-cache.html
 README
 release
+samples/perlmonks-battle/html/bullet.html
+samples/perlmonks-battle/html/table.html
+samples/perlmonks-battle/Model.pm
+samples/perlmonks-battle/README
+samples/perlmonks-battle/run.pl
+samples/perlmonks-battle/View/bullet.pm
+samples/perlmonks-battle/View/bullet/text.pm
+samples/perlmonks-battle/View/table.pm
 samples/perpage/ago.pl
 samples/perpage/go.pl
 samples/perpage/html/abstract/common.pm
