@@ -40,6 +40,7 @@ HTML::TreeBuilder, HTML::Element, and HTML::Element::LIbrary
 
 =head2 If-then-else with the highlander API call
 
+(But also see C<< $tree->passover() >> in L<HTML::Element::Library>).
 
  <span id="age_dialog">
     <span id="under10">
@@ -728,6 +729,7 @@ L<HTML::Element::Library>.
 
 =head2 If-then-else == node(s) deletion
 
+(But also see C<< $tree->passover() >> in L<HTML::Element::Library>).
 
  <span id="age_dialog">
     <span id="under10">
@@ -887,14 +889,14 @@ HTML::Seamstress provides "fourth generation" dynamic HTML generation
 In the beginning we had...
 
 
-=head2 First generation dynamic HTML production
+=head2 First generation dynamic HTML production - server side includes
 
 First generation dynamic HTML production used server-side
 includes:
 
  <p>Today's date is   <!--#echo var="DATE_LOCAL" --> </p>
 
-=head2 Second generation dynamic HTML production
+=head2 Second generation dynamic HTML production - HTML in Perl
 
 The next phase of HTML generation saw
 embedded HTML snippets in Perl code. For example:
@@ -908,7 +910,7 @@ embedded HTML snippets in Perl code. For example:
    EOHEADER
  }
 
-=head2 Third generation dynamic HTML production
+=head2 Third generation dynamic HTML production - Perl/minilanguage in HTML
 
 The 3rd generation solutions embed
 programming language constructs with HTML. The language constructs
@@ -933,7 +935,7 @@ HTML in some form or fashion:
 
 =back
 
-=head2 Enter fourth generation dynamic HTML production
+=head2 Enter fourth generation dynamic HTML production - DOM style
 
 The fourth generation of HTML production is distinguished by no need
 for tampering with the HTML. There are a wealth of XML-based modules
@@ -941,16 +943,24 @@ which provide this approach (L<XML::Twig>, L<XML::LibXML>,
 L<XML::TreeBuilder>, L<XML::DOM>). HTML::Seamstress is the one CPAN
 module based around HTML and L<HTML::Tree> for this approach.
 
+The fourth generation is also the way that a language like Javascript rewrites HTML.
+By using Seamstress, you can always think about manipulating your HTML in the same way!
+
 
 
 =head1 SEE ALSO
 
-=head2 Similar Frameworks 
+=head2 Related Software
 
 I created a node at Perlmonks which catalogues push-style templating systems
 both in and outside of Perl:
 
 L<http://perlmonks.org/?node_id=674225|http://perlmonks.org/?node_id=674225>
+
+Here are two common ones:
+L<http://xmlc.enhydra.org>
+L<http://www.plope.com/software/meld3>
+
 
 
 
@@ -989,16 +999,26 @@ module.
 =back
 
 
+=head2 Articles, Publications, Discussion
 
-=head2 HTML Templating as Tree Rewriting: Part I: "If Statements"
+
+=head3 Push style templating systems
+
+http://perlmonks.org/?node_id=674225
+
+=head3 Form Validation in CGI::Application with Seamstress
+
+L<http://perlmonks.org/?node_id=742427>
+
+=head3 HTML Templating as Tree Rewriting: Part I: "If Statements"
 
 L<http://perlmonks.org/index.pl?node_id=302606>
 
-=head2 HTATR II: HTML table generation via DWIM tree rewriting
+=head3 HTATR II: HTML table generation via DWIM tree rewriting
 
 L<http://perlmonks.org/index.pl?node_id=303188>
 
-=head2 Survey of Surveys on HTML Templating systems
+=head3 Survey of Surveys on HTML Templating systems
 
 L<http://perlmonks.org/?node_id=433729>
 
@@ -1006,7 +1026,7 @@ A fierce head-to-head between PeTaL and Seamstress goes on for several
 days in this thread!
 
 
-=head2 The disadvantages of mini-languages
+=head3 The disadvantages of mini-languages
 
 The disadvantages of mini-languages is discussed here:
 L<http://perlmonks.org/?node_id=428053>
@@ -1037,7 +1057,7 @@ suspect) HTML manipulation, and no ability to statically validate the
 Perl or HTML" 
 
 
-=head2 Problems with JSP (JSP is similar to HTML::Mason)
+=head3 Problems with JSP (JSP is similar to HTML::Mason)
 
 L<http://www.servlets.com/soapbox/problems-jsp-reaction.html>
 
@@ -1045,16 +1065,9 @@ L<http://www-106.ibm.com/developerworks/library/w-friend.html?dwzone=web>
 
 L<http://www.theserverside.com/resources/article.jsp?l=XMLCvsJSP>
 
-=head2 Los Angeles Perl Mongers Talk on HTML::Seamstress
+=head3 Los Angeles Perl Mongers Talk on HTML::Seamstress
 
-L<http://www.metaperl.com>
-
-=head2 Similar frameworks in other languages
-
-
-L<http://xmlc.enhydra.org>
-
-L<http://www.plope.com/software/meld3>
+L<http://www.metaperl.org>
 
 
 
@@ -1063,12 +1076,19 @@ L<http://www.plope.com/software/meld3>
 
 =head1 SUPPORT and DEVELOPMENT
 
-L<http://seamstress.sourceforge.net/> is the jumping-off page
-for all things Seamstress on the web.
+
+
+=head2 IRC
+
+L<irc://irc.perl.org/#html-seamstress>
 
 =head2 Mailing List
 
 L<http://lists.sourceforge.net/lists/listinfo/seamstress-discuss>
+
+=head2 Source repo
+
+L<http://github.com/metaperl/html-seamstress/tree/master>
 
 =head1 AUTHOR
 

@@ -1,5 +1,0 @@
-syntax: glob
-
-blib/*
-*.tar.gz
-*~
