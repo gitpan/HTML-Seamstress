@@ -108,7 +108,7 @@ common to a subclass of L<HTML::Tree>.
 
 
 I think a Perlmonks node:
-L<http://perlmonks.org/?node_id=669956|http://perlmonks.org/?node_id=669956>
+L<http://perlmonks.org/?node_id=669956>
 sums up the job of Seamstress quite well:
 
     Monks,
@@ -950,12 +950,25 @@ By using Seamstress, you can always think about manipulating your HTML in the sa
 
 =head1 SEE ALSO
 
+=head2 Object-oriented goodies
+
+Seamstress is just glue for object-oriented tree processing in Perl (I can see my SEO rank climbing right now from that sentence!).
+Anyway, here is your LOOM - (List of object-oriented modules):
+
+=over 4
+
+=item * L<HTML::ELement::Replacer|HTML::Element::Replacer>
+
+=item * L<HTML::ELement::Library|HTML::Element::Library>
+
+=back
+
 =head2 Related Software
 
 I created a node at Perlmonks which catalogues push-style templating systems
 both in and outside of Perl:
 
-L<http://perlmonks.org/?node_id=674225|http://perlmonks.org/?node_id=674225>
+L<http://perlmonks.org/?node_id=674225>
 
 Here are two common ones:
 L<http://xmlc.enhydra.org>
@@ -1009,6 +1022,11 @@ http://perlmonks.org/?node_id=674225
 =head3 Form Validation in CGI::Application with Seamstress
 
 L<http://perlmonks.org/?node_id=742427>
+
+=head3 Easy table rendering in modern HTML::Seamstress
+
+L<http://perlmonks.org/?node_id=768430>
+
 
 =head3 HTML Templating as Tree Rewriting: Part I: "If Statements"
 
@@ -1144,6 +1162,8 @@ Just an idea...
 =item * Ian Tegebo
 
 For noticing some doc bugs in the Quickstart guide.
+
+=item * 
 
 =back
 
