@@ -1,29 +1,20 @@
 --- #YAML:1.0
-name:               HTML-Seamstress
-version:            5.0g
-abstract:           ~
-author:  []
-license:            unknown
-distribution_type:  module
-configure_requires:
-    ExtUtils::MakeMaker:  0
-build_requires:
-    ExtUtils::MakeMaker:  0
-requires:
-    Class::Prototyped:    1.1
-    File::Slurp:          9999.06
-    HTML::Element::Library:  0.01
-    HTML::Element::Replacer:  0.01
-    HTML::Elemental:      0.01
-    HTML::FillInForm:     0.01
-    HTML::PrettyPrinter:  0.03
-    HTML::Tree:           3.18
-    Pod::Usage:           1.14
-no_index:
-    directory:
-        - t
-        - inc
-generated_by:       ExtUtils::MakeMaker version 6.50
+name:                HTML-Seamstress
+version:             5.0h
+abstract:            ~
+license:             ~
+author:              ~
+generated_by:        ExtUtils::MakeMaker version 6.44
+distribution_type:   module
+requires:     
+    Class::Prototyped:             1.1
+    File::Slurp:                   9999.06
+    HTML::Element::Library:        0.01
+    HTML::Element::Replacer:       0.01
+    HTML::FillInForm:              0.01
+    HTML::PrettyPrinter:           0.03
+    HTML::Tree:                    3.18
+    Pod::Usage:                    1.14
 meta-spec:
-    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
-    version:  1.4
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3
