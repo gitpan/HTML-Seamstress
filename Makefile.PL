@@ -1,34 +1,84 @@
-#use 5.008;
-use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
-WriteMakefile(
-    'NAME'		=> 'HTML::Seamstress',
-    'VERSION_FROM'	=> 'lib/HTML/Seamstress.pm', # finds $VERSION
-    'EXE_FILES'         => ['sbase.pl', 'spkg.pl'],
-    'PREREQ_PM'		=> 
-	      {
-	       File::Slurp => 9999.06,
 
-	       HTML::PrettyPrinter => 0.03,
-	       HTML::Tree => 3.18,
-	       Pod::Usage => 1.14,
-	       Class::Prototyped => 1.10,
+use strict;
+use warnings;
 
-	       HTML::Element::Library => 0.01,
-	       HTML::Element::Replacer => 0.01,
-	       HTML::FillInForm => 0.01,
-	      },
+use 5.006;
 
+use ExtUtils::MakeMaker 6.30;
+
+
+
+my %WriteMakefileArgs = (
+  'ABSTRACT' => 'HTML::Tree subclass for HTML templating via tree rewriting',
+  'AUTHOR' => 'Terrence Brannon <metaperl@gmail.com>',
+  'BUILD_REQUIRES' => {
+    'Class::Prototyped' => '0',
+    'Exporter' => '0',
+    'FileHandle' => '0',
+    'HTML::PrettyPrinter' => '0',
+    'Test::More' => '0',
+    'html::Seamstress::Base' => '0',
+    'html::content_handler' => '0',
+    'html::highlander' => '0',
+    'vars' => '0'
+  },
+  'CONFIGURE_REQUIRES' => {
+    'ExtUtils::MakeMaker' => '6.30'
+  },
+  'DISTNAME' => 'HTML-Seamstress',
+  'EXE_FILES' => [
+    'bin/compile',
+    'bin/compile-all.pl',
+    'bin/file.html',
+    'bin/preamble',
+    'bin/sbase.pl',
+    'bin/spkg.pl',
+    'bin/Simple/Class.pm'
+  ],
+  'LICENSE' => 'perl',
+  'NAME' => 'HTML::Seamstress',
+  'PREREQ_PM' => {
+    'Carp' => '0',
+    'Cwd' => '0',
+    'Data::Dumper' => '0',
+    'File::Basename' => '0',
+    'File::Find' => '0',
+    'File::Path' => '0',
+    'File::Slurp' => '0',
+    'File::Spec' => '0',
+    'Getopt::Long' => '0',
+    'HTML::Element' => '0',
+    'HTML::Element::Library' => '0',
+    'HTML::Element::Replacer' => '0',
+    'HTML::TreeBuilder' => '0',
+    'Local::Seamstress::Base' => '0',
+    'Pod::Usage' => '0',
+    'Set::Array' => '0'
+  },
+  'VERSION' => '6.111950',
+  'test' => {
+    'TESTS' => 't/*.t'
+  }
 );
 
-sub MY::postamble { q{
 
-
-docs:
-	cd lib/HTML/Seamstress; ./tt.pl Quickstart.tt
-	cd lib/HTML/Seamstress; cp Quickstart.tt-out Quickstart.pod
-	cd lib/HTML/Seamstress; pod2html Quickstart.pod > Quickstart.html
-
-  };
+unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
+  my $br = delete $WriteMakefileArgs{BUILD_REQUIRES};
+  my $pp = $WriteMakefileArgs{PREREQ_PM};
+  for my $mod ( keys %$br ) {
+    if ( exists $pp->{$mod} ) {
+      $pp->{$mod} = $br->{$mod} if $br->{$mod} > $pp->{$mod};
+    }
+    else {
+      $pp->{$mod} = $br->{$mod};
+    }
+  }
 }
+
+delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
+  unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
+
+WriteMakefile(%WriteMakefileArgs);
+
+
+
