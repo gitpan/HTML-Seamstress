@@ -8,14 +8,11 @@ build_requires:
   FileHandle: 0
   HTML::PrettyPrinter: 0
   Test::More: 0
-  html::Seamstress::Base: 0
-  html::content_handler: 0
-  html::highlander: 0
   vars: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.200008, CPAN::Meta::Converter version 2.110930'
+generated_by: 'Dist::Zilla version 4.200012, CPAN::Meta::Converter version 2.110930'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -35,8 +32,7 @@ requires:
   HTML::Element::Library: 0
   HTML::Element::Replacer: 0
   HTML::TreeBuilder: 0
-  Local::Seamstress::Base: 0
   Pod::Usage: 0
   Set::Array: 0
   perl: 5.006
-version: 6.111950
+version: 6.112830

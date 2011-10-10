@@ -12,7 +12,7 @@ major = 6
 
 
 [AutoPrereqs]
-skip = (Test::XML|Arsenal|SimpleClass|SelectData|TestUtils|data::table2|Local::Seamstress::Base|html::Seamstress::Base|html::content_handler|html::highlander)
+skip = (Test::XML|Arsenal|SimpleClass|SelectData|TestUtils|data::table2)
 
 
 

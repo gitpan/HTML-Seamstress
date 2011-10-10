@@ -17,9 +17,6 @@ my %WriteMakefileArgs = (
     'FileHandle' => '0',
     'HTML::PrettyPrinter' => '0',
     'Test::More' => '0',
-    'html::Seamstress::Base' => '0',
-    'html::content_handler' => '0',
-    'html::highlander' => '0',
     'vars' => '0'
   },
   'CONFIGURE_REQUIRES' => {
@@ -51,11 +48,10 @@ my %WriteMakefileArgs = (
     'HTML::Element::Library' => '0',
     'HTML::Element::Replacer' => '0',
     'HTML::TreeBuilder' => '0',
-    'Local::Seamstress::Base' => '0',
     'Pod::Usage' => '0',
     'Set::Array' => '0'
   },
-  'VERSION' => '6.111950',
+  'VERSION' => '6.112830',
   'test' => {
     'TESTS' => 't/*.t'
   }

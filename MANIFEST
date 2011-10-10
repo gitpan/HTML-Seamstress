@@ -34,6 +34,7 @@ discuss/design-dilemma.pod
 discuss/mst-irc-comments.txt
 discuss/o.txt
 dist.ini
+dist.ini~
 etc/new_file.html
 etc/try.pl
 lib/HTML/Seamstress.html
